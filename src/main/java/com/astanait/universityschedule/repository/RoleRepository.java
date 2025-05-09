@@ -1,4 +1,4 @@
-package com.astanait.universityschedule.RoleRepository;
+package com.astanait.universityschedule.repository;
 
 import com.astanait.universityschedule.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
