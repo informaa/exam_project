@@ -7,10 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -96,4 +97,48 @@ public class ScheduleController {
 
         return "schedule-weekly";
     }
+
+    @GetMapping("/new")
+    public String showCreateForm(Model model) {
+        log.debug("Запрос формы для создания новой записи (GET /schedule/new)");
+        ScheduleEntryDto newEntry = new ScheduleEntryDto();
+        model.addAttribute("entry", newEntry);
+        model.addAttribute("pageTitle", "Добавить новую запись в расписание");
+        populateCommonModelAttributes(model, newEntry.getAcademicYear(), newEntry.getSemester(), newEntry.getWeekNumber());
+        addActivePageAttributes(model);
+        return "schedule-form";
+    }
+
+    @PostMapping("/save")
+    public String saveEntry(@Valid @ModelAttribute("entry") ScheduleEntryDto entryDto,
+                            BindingResult bindingResult,
+                            RedirectAttributes redirectAttributes,
+                            Model model) {
+        log.info("Попытка сохранения новой записи расписания: {}", entryDto);
+
+        if (bindingResult.hasErrors()) {
+            log.warn("Ошибки валидации при сохранении записи расписания: {}", bindingResult.getAllErrors());
+            model.addAttribute("pageTitle", "Добавить новую запись в расписание (Ошибка!)");
+            populateCommonModelAttributes(model, entryDto.getAcademicYear(), entryDto.getSemester(), entryDto.getWeekNumber());
+            addActivePageAttributes(model);
+            return "schedule-form";
+        }
+
+        try {
+            scheduleService.createEntry(entryDto);
+            redirectAttributes.addFlashAttribute("successMessage", "Запись успешно добавлена!");
+            log.info("Новая запись расписания успешно сохранена.");
+            return "redirect:/schedule?academicYear=" + entryDto.getAcademicYear() +
+                    "&semester=" + entryDto.getSemester() +
+                    "&week=" + entryDto.getWeekNumber();
+        } catch (Exception e) {
+            log.error("Ошибка при сохранении записи расписания: {}", e.getMessage(), e);
+            model.addAttribute("errorMessage", "Ошибка при сохранении записи: " + e.getMessage());
+            model.addAttribute("pageTitle", "Добавить новую запись в расписание (Ошибка!)");
+            populateCommonModelAttributes(model, entryDto.getAcademicYear(), entryDto.getSemester(), entryDto.getWeekNumber());
+            addActivePageAttributes(model);
+            return "schedule-form";
+        }
+    }
+
 }
