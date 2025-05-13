@@ -24,6 +24,8 @@ public class DataLoader implements ApplicationRunner {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+
+    // Spring сам передаст эти объекты в конструктор
     @Autowired
     public DataLoader(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -36,6 +38,7 @@ public class DataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         log.info("Загрузка начальных данных...");
 
+        // Проверяем, есть ли роль "ROLE_ADMIN" в БД
         Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
             log.info("Создание роли ROLE_ADMIN");
             return roleRepository.save(new Role("ROLE_ADMIN"));

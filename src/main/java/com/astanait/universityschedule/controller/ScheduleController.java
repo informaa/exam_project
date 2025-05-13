@@ -18,7 +18,8 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
-@Controller
+
+@Controller // говорит Spring, что это контроллер, который возвращает HTML-страницы
 @RequestMapping("/schedule")
 public class ScheduleController {
 
