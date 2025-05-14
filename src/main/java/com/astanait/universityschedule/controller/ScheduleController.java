@@ -2,6 +2,7 @@ package com.astanait.universityschedule.controller;
 
 import com.astanait.universityschedule.dto.ScheduleEntryDto;
 import com.astanait.universityschedule.service.ScheduleService;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +141,91 @@ public class ScheduleController {
             addActivePageAttributes(model);
             return "schedule-form";
         }
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        log.debug("Запрос формы для редактирования записи расписания ID: {}", id);
+        try {
+            ScheduleEntryDto entryDto = scheduleService.getEntryById(id);
+            model.addAttribute("entry", entryDto);
+            model.addAttribute("pageTitle", "Редактировать запись расписания (ID: " + id + ")");
+            populateCommonModelAttributes(model, entryDto.getAcademicYear(), entryDto.getSemester(), entryDto.getWeekNumber());
+            addActivePageAttributes(model);
+            return "schedule-form";
+        } catch (EntityNotFoundException e) {
+            log.warn("Запись расписания с ID {} не найдена для редактирования.", id);
+            redirectAttributes.addFlashAttribute("errorMessage", "Запись с ID " + id + " не найдена.");
+            return "redirect:/schedule";
+        }
+    }
+
+    @PostMapping("/update")
+    public String updateEntry(@Valid @ModelAttribute("entry") ScheduleEntryDto entryDto,
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes,
+                              Model model) {
+        log.info("Попытка обновления записи расписания ID {}: {}", entryDto.getId(), entryDto);
+
+        if (entryDto.getId() == null) {
+            log.error("Попытка обновления записи расписания без ID!");
+            redirectAttributes.addFlashAttribute("errorMessage", "Ошибка: ID записи не указан для обновления.");
+            return "redirect:/schedule";
+        }
+
+        if (bindingResult.hasErrors()) {
+            log.warn("Ошибки валидации при обновлении записи расписания ID {}: {}", entryDto.getId(), bindingResult.getAllErrors());
+            model.addAttribute("pageTitle", "Редактировать запись расписания (ID: " + entryDto.getId() + ") (Ошибка!)");
+            populateCommonModelAttributes(model, entryDto.getAcademicYear(), entryDto.getSemester(), entryDto.getWeekNumber());
+            addActivePageAttributes(model);
+            return "schedule-form";
+        }
+
+        try {
+            scheduleService.updateEntry(entryDto.getId(), entryDto);
+            redirectAttributes.addFlashAttribute("successMessage", "Запись успешно обновлена!");
+            log.info("Запись расписания ID {} успешно обновлена.", entryDto.getId());
+            return "redirect:/schedule?academicYear=" + entryDto.getAcademicYear() +
+                    "&semester=" + entryDto.getSemester() +
+                    "&week=" + entryDto.getWeekNumber();
+        } catch (EntityNotFoundException e) {
+            log.warn("Запись расписания с ID {} не найдена для обновления.", entryDto.getId());
+            redirectAttributes.addFlashAttribute("errorMessage", "Запись с ID " + entryDto.getId() + " не найдена.");
+            return "redirect:/schedule";
+        } catch (Exception e) {
+            log.error("Ошибка при обновлении записи расписания ID {}: {}", entryDto.getId(), e.getMessage(), e);
+            model.addAttribute("errorMessage", "Ошибка при обновлении: " + e.getMessage());
+            model.addAttribute("pageTitle", "Редактировать запись расписания (ID: " + entryDto.getId() + ") (Ошибка!)");
+            populateCommonModelAttributes(model, entryDto.getAcademicYear(), entryDto.getSemester(), entryDto.getWeekNumber());
+            addActivePageAttributes(model);
+            return "schedule-form";
+        }
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteEntry(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Запрос на удаление записи расписания ID: {}", id);
+        String targetRedirectUrl = "/schedule";
+
+        try {
+            ScheduleEntryDto entryDto = scheduleService.getEntryById(id);
+            if (entryDto != null && entryDto.getAcademicYear() != null && entryDto.getSemester() != null && entryDto.getWeekNumber() != null) {
+                targetRedirectUrl = "/schedule?academicYear=" + entryDto.getAcademicYear() +
+                        "&semester=" + entryDto.getSemester() +
+                        "&week=" + entryDto.getWeekNumber();
+            }
+
+            scheduleService.deleteEntry(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Запись ID " + id + " успешно удалена.");
+            log.info("Запись расписания ID {} успешно удалена.", id);
+        } catch (EntityNotFoundException e) {
+            log.warn("Запись расписания с ID {} не найдена для удаления.", id);
+            redirectAttributes.addFlashAttribute("errorMessage", "Запись с ID " + id + " не найдена для удаления.");
+        } catch (Exception e) {
+            log.error("Ошибка при удалении записи расписания ID {}: {}", id, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при удалении записи ID " + id + ": " + e.getMessage());
+        }
+        return "redirect:" + targetRedirectUrl;
     }
 
 }
