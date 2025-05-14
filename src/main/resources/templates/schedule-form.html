@@ -137,3 +137,97 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        const academicYearSelect = document.getElementById('academicYear');
+        const semesterSelect = document.getElementById('semester');
+        const weekNumberSelect = document.getElementById('weekNumber');
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        const entryIdInput = document.querySelector('input[name="id"]');
+
+        function applyDateBoundaries(data) {
+            if (data && data.minDateTime && data.maxDateTime) {
+                startTimeInput.min = data.minDateTime;
+                startTimeInput.max = data.maxDateTime;
+                endTimeInput.min = data.minDateTime;
+                endTimeInput.max = data.maxDateTime;
+
+                const entryId = entryIdInput ? entryIdInput.value : null;
+                const isNewEntry = (!entryId || entryId === "" || entryId === "0");
+
+                if (isNewEntry && !startTimeInput.value && data.defaultStartTime) {
+                    startTimeInput.value = data.defaultStartTime;
+                }
+            } else {
+                startTimeInput.removeAttribute('min');
+                startTimeInput.removeAttribute('max');
+                endTimeInput.removeAttribute('min');
+                endTimeInput.removeAttribute('max');
+            }
+        }
+
+        function fetchAndUpdateDateBoundaries() {
+            const year = academicYearSelect.value;
+            const semester = semesterSelect.value;
+            const week = weekNumberSelect.value;
+
+            if (year && semester && week) {
+                const queryParams = new URLSearchParams({ academicYear: year, semester: semester, week: week });
+                const apiUrl = /*[[@{/schedule/api/week-boundaries}]]*/ '/schedule/api/week-boundaries';
+
+                fetch(`${apiUrl}?${queryParams.toString()}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Network response was not ok. Status:', response.status);
+                            applyDateBoundaries(null);
+                            return response.text().then(text => {
+                                console.error('Error response body:', text);
+                                throw new Error(`Network response was not ok: ${response.statusText}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && !data.error) {
+                            applyDateBoundaries(data);
+                        } else {
+                            console.warn("Не удалось получить корректные границы дат с сервера:", data ? data.error : 'No data');
+                            applyDateBoundaries(null);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при получении границ дат:', error);
+                        applyDateBoundaries(null);
+                    });
+            } else {
+                applyDateBoundaries(null);
+            }
+        }
+
+        const initialMin = /*[[${minDateTimeForWeek}]]*/ null;
+        const initialMax = /*[[${maxDateTimeForWeek}]]*/ null;
+        const initialDefault = /*[[${defaultStartDateTimeForWeek}]]*/ null;
+
+        if(initialMin && initialMax) {
+            applyDateBoundaries({
+                minDateTime: initialMin,
+                maxDateTime: initialMax,
+                defaultStartTime: initialDefault
+            });
+        } else {
+            fetchAndUpdateDateBoundaries();
+        }
+
+        if (academicYearSelect) academicYearSelect.addEventListener('change', fetchAndUpdateDateBoundaries);
+        if (semesterSelect) semesterSelect.addEventListener('change', fetchAndUpdateDateBoundaries);
+        if (weekNumberSelect) weekNumberSelect.addEventListener('change', fetchAndUpdateDateBoundaries);
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>
