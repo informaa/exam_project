@@ -114,6 +114,7 @@ public class ScheduleService {
             throw new EntityNotFoundException("Запись расписания с ID " + id + " не найдена для удаления");
         }
         scheduleEntryRepository.deleteById(id);
+        log.info("Запись расписания с ID {} успешно удалена", id);
     }
 
     protected ScheduleEntryDto convertToDto(ScheduleEntry entity) {
