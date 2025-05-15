@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
+//  будет использоваться для получения/отправки данных о расписании
 public class ScheduleEntryDto {
 
     private Long id;

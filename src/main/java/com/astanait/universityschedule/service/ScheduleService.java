@@ -22,11 +22,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+// будет содержать методы для работы с расписанием
 public class ScheduleService {
 
     private final ScheduleEntryRepository scheduleEntryRepository;
     private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
 
+    // Константа: даты начала семестров
     public static final Map<String, LocalDate> SEMESTER_START_DATES = new HashMap<>();
     static {
         SEMESTER_START_DATES.put("2024-2025_1", LocalDate.of(2024, 9, 2));
@@ -40,6 +42,7 @@ public class ScheduleService {
         this.scheduleEntryRepository = scheduleEntryRepository;
     }
 
+    // Вычисляет начало конкретной недели в определённом семестре
     public LocalDate calculateStartDateForAcademicWeek(String academicYear, int semester, int weekNumber) {
         String key = academicYear + "_" + semester;
         LocalDate semesterStartDate = SEMESTER_START_DATES.get(key);
@@ -50,6 +53,7 @@ public class ScheduleService {
         return startOfAcademicWeekCandidate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
 
+    // Возвращает записи расписания на основе фильтра
     @Transactional(readOnly = true)
     public List<ScheduleEntryDto> getEntriesByAcademicCriteria(String academicYear, Integer semester, Integer weekNumber) {
         List<ScheduleEntry> entries;
@@ -65,6 +69,7 @@ public class ScheduleService {
         return entries.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
+    // Получает все занятия за неделю (от понедельника до воскресенька)
     @Transactional(readOnly = true)
     public List<ScheduleEntryDto> getEntriesForWeek(LocalDate weekStartDateInput) {
         LocalDate start = weekStartDateInput.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -75,6 +80,7 @@ public class ScheduleService {
         return entries.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
+    // Находит одну запись расписания по ID и возвращает её в виде DTO
     @Transactional(readOnly = true)
     public ScheduleEntryDto getEntryById(Long id) {
         ScheduleEntry entry = scheduleEntryRepository.findById(id)
@@ -82,6 +88,7 @@ public class ScheduleService {
         return convertToDto(entry);
     }
 
+    // Создаёт новую запись расписания на основе данных из DTO
     @Transactional
     public ScheduleEntryDto createEntry(ScheduleEntryDto dto) {
         ScheduleEntry entry = convertToEntity(dto);
@@ -90,6 +97,7 @@ public class ScheduleService {
         return convertToDto(savedEntry);
     }
 
+    // Обновляет существующую запись расписания
     @Transactional
     public ScheduleEntryDto updateEntry(Long id, ScheduleEntryDto dto) {
         ScheduleEntry existingEntry = scheduleEntryRepository.findById(id)
@@ -108,6 +116,7 @@ public class ScheduleService {
         return convertToDto(updatedEntry);
     }
 
+    // Удаляет запись расписания по ID.
     @Transactional
     public void deleteEntry(Long id) {
         if (!scheduleEntryRepository.existsById(id)) {
@@ -117,6 +126,7 @@ public class ScheduleService {
         log.info("Запись расписания с ID {} успешно удалена", id);
     }
 
+    // Превращает модель ScheduleEntry (из БД) в ScheduleEntryDto (для передачи данных)
     protected ScheduleEntryDto convertToDto(ScheduleEntry entity) {
         if (entity == null) return null;
         return new ScheduleEntryDto(
@@ -132,6 +142,7 @@ public class ScheduleService {
         );
     }
 
+    // Превращает ScheduleEntryDto (полученный от пользователя или API) в модель ScheduleEntry (для сохранения в БД)
     protected ScheduleEntry convertToEntity(ScheduleEntryDto dto) {
         if (dto == null) return null;
         ScheduleEntry entry = new ScheduleEntry();

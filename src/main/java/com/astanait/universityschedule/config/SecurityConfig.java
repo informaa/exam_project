@@ -11,16 +11,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@Configuration
-@EnableWebSecurity
+@Configuration // говорит Spring, что это класс с настройками
+@EnableWebSecurity // включает безопасность на основе Spring Security.
 public class SecurityConfig {
 
-    @Bean
+    @Bean // регистрирует метод как компонент Spring
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
+    @Bean //  метод создаёт цепочку фильтров безопасности
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
-@Component
+@Component // позволяет нам использовать его внутри других частей программы
 public class DataLoader implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DataLoader.class);
@@ -49,6 +49,7 @@ public class DataLoader implements ApplicationRunner {
             return roleRepository.save(new Role("ROLE_USER"));
         });
 
+        // Если пользователь "admin" ещё не создан
         if (userRepository.findByUsername("admin").isEmpty()) {
             User adminUser = new User("admin", passwordEncoder.encode("adminpassword"), true);
             adminUser.setRoles(Set.of(adminRole));
@@ -58,6 +59,7 @@ public class DataLoader implements ApplicationRunner {
             log.info("Пользователь 'admin' уже существует.");
         }
 
+        // Аналогично создаём пользователя "user" с ролью "ROLE_USER"
         if (userRepository.findByUsername("user").isEmpty()) {
             User regularUser = new User("user", passwordEncoder.encode("userpassword"), true);
             regularUser.setRoles(Set.of(userRole));

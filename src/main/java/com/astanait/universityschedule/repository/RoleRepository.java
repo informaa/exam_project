@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+// Аннотация над интерфейсом
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    // Это наш собственный метод , который ищет роль по её имени
+    // метод , который ищет роль по её имени
     Optional<Role> findByName(String name);
 }

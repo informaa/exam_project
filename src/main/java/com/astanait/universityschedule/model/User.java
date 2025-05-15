@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 import java.util.HashSet;
 import java.util.Set;
 
+// Аннотации над классом
 @Entity
 @Table(name = "users")
 @Data
 @NoArgsConstructor
 
+// Данные об одном пользователе
 public class User {
 
     @Id
@@ -24,9 +26,11 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
+    // поле указывает, активирован ли аккаунт пользователя
     @Column(nullable = false)
     private boolean enabled = true;
 
+    // Связь с Role (Many-to-Many)
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
             name = "users_roles",
