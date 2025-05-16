@@ -19,4 +19,12 @@ public interface ScheduleEntryRepository extends JpaRepository<ScheduleEntry, Lo
     List<ScheduleEntry> findByAcademicYearAndSemesterOrderByStartTimeAsc(String academicYear, Integer semester);
     // Поиск только по году
     List<ScheduleEntry> findByAcademicYearOrderByStartTimeAsc(String academicYear);
+
+    List<ScheduleEntry> findByGroupNameAndStartTimeBetweenOrderByStartTimeAsc(String groupName, LocalDateTime startOfWeek, LocalDateTime endOfWeek);
+
+    // Для студентов и академических критериев
+    List<ScheduleEntry> findByGroupNameAndAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(String groupName, String academicYear, Integer semester, Integer weekNumber);
+    List<ScheduleEntry> findByGroupNameAndAcademicYearAndSemesterOrderByStartTimeAsc(String groupName, String academicYear, Integer semester);
+    List<ScheduleEntry> findByGroupNameAndAcademicYearOrderByStartTimeAsc(String groupName, String academicYear);
+    List<ScheduleEntry> findByGroupNameOrderByStartTimeAsc(String groupName);
 }
