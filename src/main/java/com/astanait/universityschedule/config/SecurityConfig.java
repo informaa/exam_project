@@ -25,7 +25,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/schedule", "/exams").authenticated()
+                        .requestMatchers("/schedule/new", "/schedule/edit/**", "/schedule/save", "/schedule/update", "/schedule/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/schedule/api/week-boundaries").authenticated()
+                        .requestMatchers("/schedule").authenticated()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest().authenticated()
                 )
