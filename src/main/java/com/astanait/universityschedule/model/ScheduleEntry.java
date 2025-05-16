@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,8 +11,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
-// класс который будет представлять одну запись в расписании
 public class ScheduleEntry {
 
     @Id
@@ -35,12 +32,18 @@ public class ScheduleEntry {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @Column(length = 10)
+    @Column(length = 10, nullable = false)
     private String academicYear;
 
-    @Column
+    @Column(nullable = false)
     private Integer semester;
 
-    @Column
+    @Column(nullable = false)
     private Integer weekNumber;
+
+    @Column(name = "group_name", length = 50, nullable = false)
+    private String groupName;
+
+    @Column(name = "subject_type", length = 30, nullable = false)
+    private String subjectType;
 }
