@@ -22,14 +22,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-// будет содержать методы для работы с расписанием
 public class ScheduleService {
 
-    private final ScheduleEntryRepository scheduleEntryRepository;
+    private final ScheduleEntryRepository repository;
     private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
 
-    // Константа: даты начала семестров
     public static final Map<String, LocalDate> SEMESTER_START_DATES = new HashMap<>();
+
     static {
         SEMESTER_START_DATES.put("2024-2025_1", LocalDate.of(2024, 9, 2));
         SEMESTER_START_DATES.put("2024-2025_2", LocalDate.of(2025, 2, 3));
@@ -39,70 +38,99 @@ public class ScheduleService {
 
     @Autowired
     public ScheduleService(ScheduleEntryRepository scheduleEntryRepository) {
-        this.scheduleEntryRepository = scheduleEntryRepository;
+        this.repository = scheduleEntryRepository;
     }
 
-    // Вычисляет начало конкретной недели в определённом семестре
     public LocalDate calculateStartDateForAcademicWeek(String academicYear, int semester, int weekNumber) {
         String key = academicYear + "_" + semester;
         LocalDate semesterStartDate = SEMESTER_START_DATES.get(key);
         if (semesterStartDate == null) {
-            return LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            String errorMessage = String.format("Дата начала для года %s / семестра %d не найдена в конфигурации SEMESTER_START_DATES.", academicYear, semester);
+            log.warn(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
         }
         LocalDate startOfAcademicWeekCandidate = semesterStartDate.plusWeeks(weekNumber - 1);
         return startOfAcademicWeekCandidate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
 
-    // Возвращает записи расписания на основе фильтра
     @Transactional(readOnly = true)
-    public List<ScheduleEntryDto> getEntriesByAcademicCriteria(String academicYear, Integer semester, Integer weekNumber) {
+    public List<ScheduleEntryDto> getEntriesByAcademicCriteria(String academicYear, Integer semester, Integer weekNumber, String userGroupName, boolean isAdmin) {
         List<ScheduleEntry> entries;
-        if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
-            entries = scheduleEntryRepository.findByAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(academicYear, semester, weekNumber);
-        } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
-            entries = scheduleEntryRepository.findByAcademicYearAndSemesterOrderByStartTimeAsc(academicYear, semester);
-        } else if (academicYear != null && !academicYear.isEmpty()) {
-            entries = scheduleEntryRepository.findByAcademicYearOrderByStartTimeAsc(academicYear);
+        if (isAdmin) {
+            log.info("ADMIN REQUEST: Загрузка записей расписания: Год={}, Семестр={}, Неделя={}", academicYear, semester, weekNumber);
+            if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
+                entries = repository.findByAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(academicYear, semester, weekNumber);
+            } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
+                entries = repository.findByAcademicYearAndSemesterOrderByStartTimeAsc(academicYear, semester);
+            } else if (academicYear != null && !academicYear.isEmpty()) {
+                entries = repository.findByAcademicYearOrderByStartTimeAsc(academicYear);
+            } else {
+                log.warn("ADMIN REQUEST: Не указаны полные академические фильтры. Возвращается пустой список.");
+                return Collections.emptyList();
+            }
         } else {
-            return Collections.emptyList();
+            if (userGroupName == null || userGroupName.isBlank()) {
+                log.warn("USER REQUEST: Для пользователя-студента не указана группа. Расписание не будет загружено.");
+                return Collections.emptyList();
+            }
+            log.info("USER REQUEST: Загрузка записей расписания для группы {}: Год={}, Семестр={}, Неделя={}", userGroupName, academicYear, semester, weekNumber);
+            if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
+                entries = repository.findByGroupNameAndAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(userGroupName, academicYear, semester, weekNumber);
+            } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
+                entries = repository.findByGroupNameAndAcademicYearAndSemesterOrderByStartTimeAsc(userGroupName, academicYear, semester);
+            } else if (academicYear != null && !academicYear.isEmpty()) {
+                entries = repository.findByGroupNameAndAcademicYearOrderByStartTimeAsc(userGroupName, academicYear);
+            } else {
+                entries = repository.findByGroupNameOrderByStartTimeAsc(userGroupName);
+            }
         }
         return entries.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    // Получает все занятия за неделю (от понедельника до воскресенька)
     @Transactional(readOnly = true)
-    public List<ScheduleEntryDto> getEntriesForWeek(LocalDate weekStartDateInput) {
+    public List<ScheduleEntryDto> getEntriesForWeek(LocalDate weekStartDateInput, String userGroupName, boolean isAdmin) {
         LocalDate start = weekStartDateInput.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate end = start.plusDays(6);
         LocalDateTime startOfWeekDateTime = start.atStartOfDay();
         LocalDateTime endOfWeekDateTime = end.atTime(LocalTime.MAX);
-        List<ScheduleEntry> entries = scheduleEntryRepository.findByStartTimeBetweenOrderByStartTimeAsc(startOfWeekDateTime, endOfWeekDateTime);
+        List<ScheduleEntry> entries;
+        if (isAdmin) {
+            log.debug("ADMIN REQUEST: Загрузка записей расписания для календарной недели: {} - {}", startOfWeekDateTime, endOfWeekDateTime);
+            entries = repository.findByStartTimeBetweenOrderByStartTimeAsc(startOfWeekDateTime, endOfWeekDateTime);
+        } else {
+            if (userGroupName == null || userGroupName.isBlank()) {
+                log.warn("USER REQUEST: Для пользователя-студента не указана группа. Расписание по календарной неделе не будет загружено.");
+                return Collections.emptyList();
+            }
+            log.debug("USER REQUEST: Загрузка записей расписания для группы {} для календарной недели: {} - {}", userGroupName, startOfWeekDateTime, endOfWeekDateTime);
+            entries = repository.findByGroupNameAndStartTimeBetweenOrderByStartTimeAsc(userGroupName, startOfWeekDateTime, endOfWeekDateTime);
+        }
         return entries.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    // Находит одну запись расписания по ID и возвращает её в виде DTO
     @Transactional(readOnly = true)
     public ScheduleEntryDto getEntryById(Long id) {
-        ScheduleEntry entry = scheduleEntryRepository.findById(id)
+        log.debug("Запрос записи расписания по ID: {}", id);
+        ScheduleEntry entry = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Запись расписания с ID " + id + " не найдена"));
         return convertToDto(entry);
     }
 
-    // Создаёт новую запись расписания на основе данных из DTO
     @Transactional
     public ScheduleEntryDto createEntry(ScheduleEntryDto dto) {
+        log.info("Создание новой записи расписания: Группа {}, Предмет {}, Тип {}", dto.getGroupName(), dto.getSubjectName(), dto.getSubjectType());
         ScheduleEntry entry = convertToEntity(dto);
         entry.setId(null);
-        ScheduleEntry savedEntry = scheduleEntryRepository.save(entry);
+        ScheduleEntry savedEntry = repository.save(entry);
+        log.info("Новая запись расписания успешно создана с ID: {}", savedEntry.getId());
         return convertToDto(savedEntry);
     }
 
-    // Обновляет существующую запись расписания
     @Transactional
     public ScheduleEntryDto updateEntry(Long id, ScheduleEntryDto dto) {
-        ScheduleEntry existingEntry = scheduleEntryRepository.findById(id)
+        log.info("Обновление записи расписания с ID {}: {}", id, dto);
+        ScheduleEntry existingEntry = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Запись расписания с ID " + id + " не найдена для обновления"));
-
         existingEntry.setSubjectName(dto.getSubjectName());
         existingEntry.setTeacherName(dto.getTeacherName());
         existingEntry.setRoom(dto.getRoom());
@@ -111,22 +139,23 @@ public class ScheduleService {
         existingEntry.setAcademicYear(dto.getAcademicYear());
         existingEntry.setSemester(dto.getSemester());
         existingEntry.setWeekNumber(dto.getWeekNumber());
-
-        ScheduleEntry updatedEntry = scheduleEntryRepository.save(existingEntry);
+        existingEntry.setGroupName(dto.getGroupName());
+        existingEntry.setSubjectType(dto.getSubjectType());
+        ScheduleEntry updatedEntry = repository.save(existingEntry);
+        log.info("Запись расписания с ID {} успешно обновлена", updatedEntry.getId());
         return convertToDto(updatedEntry);
     }
 
-    // Удаляет запись расписания по ID.
     @Transactional
     public void deleteEntry(Long id) {
-        if (!scheduleEntryRepository.existsById(id)) {
+        log.info("Удаление записи расписания с ID: {}", id);
+        if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Запись расписания с ID " + id + " не найдена для удаления");
         }
-        scheduleEntryRepository.deleteById(id);
+        repository.deleteById(id);
         log.info("Запись расписания с ID {} успешно удалена", id);
     }
 
-    // Превращает модель ScheduleEntry (из БД) в ScheduleEntryDto (для передачи данных)
     protected ScheduleEntryDto convertToDto(ScheduleEntry entity) {
         if (entity == null) return null;
         return new ScheduleEntryDto(
@@ -138,11 +167,12 @@ public class ScheduleService {
                 entity.getEndTime(),
                 entity.getAcademicYear(),
                 entity.getSemester(),
-                entity.getWeekNumber()
+                entity.getWeekNumber(),
+                entity.getGroupName(),
+                entity.getSubjectType()
         );
     }
 
-    // Превращает ScheduleEntryDto (полученный от пользователя или API) в модель ScheduleEntry (для сохранения в БД)
     protected ScheduleEntry convertToEntity(ScheduleEntryDto dto) {
         if (dto == null) return null;
         ScheduleEntry entry = new ScheduleEntry();
@@ -155,6 +185,8 @@ public class ScheduleService {
         entry.setAcademicYear(dto.getAcademicYear());
         entry.setSemester(dto.getSemester());
         entry.setWeekNumber(dto.getWeekNumber());
+        entry.setGroupName(dto.getGroupName());
+        entry.setSubjectType(dto.getSubjectType());
         return entry;
     }
 }
