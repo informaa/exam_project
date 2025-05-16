@@ -46,6 +46,14 @@ public class ScheduleEntryDto {
     @Max(value = 15, message = "Номер недели не должен превышать 15")
     private Integer weekNumber;
 
+    @NotBlank(message = "Группа не может быть пустой")
+    @Size(max = 50, message = "Название группы не должно превышать 50 символов")
+    private String groupName;
+
+    @NotBlank(message = "Тип занятия не может быть пустым")
+    @Pattern(regexp = "^(лекция|практика)$", message = "Тип занятия должен быть 'лекция' или 'практика'")
+    private String subjectType;
+
     @AssertTrue(message = "Время окончания должно быть после времени начала")
     public boolean isEndTimeAfterStartTime() {
         return startTime == null || endTime == null || endTime.isAfter(startTime);
