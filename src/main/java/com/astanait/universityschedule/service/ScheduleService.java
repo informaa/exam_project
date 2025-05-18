@@ -28,7 +28,6 @@ public class ScheduleService {
     private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
 
     public static final Map<String, LocalDate> SEMESTER_START_DATES = new HashMap<>();
-
     static {
         SEMESTER_START_DATES.put("2024-2025_1", LocalDate.of(2024, 9, 2));
         SEMESTER_START_DATES.put("2024-2025_2", LocalDate.of(2025, 2, 3));
@@ -54,56 +53,74 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleEntryDto> getEntriesByAcademicCriteria(String academicYear, Integer semester, Integer weekNumber, String userGroupName, boolean isAdmin) {
+    public List<ScheduleEntryDto> getEntriesByAcademicCriteria(String academicYear, Integer semester, Integer weekNumber, String groupNameToFilterBy, boolean isAdmin) {
         List<ScheduleEntry> entries;
+
         if (isAdmin) {
-            log.info("ADMIN REQUEST: Загрузка записей расписания: Год={}, Семестр={}, Неделя={}", academicYear, semester, weekNumber);
-            if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
-                entries = repository.findByAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(academicYear, semester, weekNumber);
-            } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
-                entries = repository.findByAcademicYearAndSemesterOrderByStartTimeAsc(academicYear, semester);
-            } else if (academicYear != null && !academicYear.isEmpty()) {
-                entries = repository.findByAcademicYearOrderByStartTimeAsc(academicYear);
+            log.info("ADMIN REQUEST (Academic): Year={}, Sem={}, Week={}, GroupFilter={}", academicYear, semester, weekNumber, groupNameToFilterBy);
+            if (groupNameToFilterBy != null && !groupNameToFilterBy.isBlank()) {
+                if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
+                    entries = repository.findByGroupNameAndAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(groupNameToFilterBy, academicYear, semester, weekNumber);
+                } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
+                    entries = repository.findByGroupNameAndAcademicYearAndSemesterOrderByStartTimeAsc(groupNameToFilterBy, academicYear, semester);
+                } else if (academicYear != null && !academicYear.isEmpty()) {
+                    entries = repository.findByGroupNameAndAcademicYearOrderByStartTimeAsc(groupNameToFilterBy, academicYear);
+                } else {
+                    entries = repository.findByGroupNameOrderByStartTimeAsc(groupNameToFilterBy);
+                }
             } else {
-                log.warn("ADMIN REQUEST: Не указаны полные академические фильтры. Возвращается пустой список.");
-                return Collections.emptyList();
+                if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
+                    entries = repository.findByAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(academicYear, semester, weekNumber);
+                } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
+                    entries = repository.findByAcademicYearAndSemesterOrderByStartTimeAsc(academicYear, semester);
+                } else if (academicYear != null && !academicYear.isEmpty()) {
+                    entries = repository.findByAcademicYearOrderByStartTimeAsc(academicYear);
+                } else {
+                    log.warn("ADMIN REQUEST (Academic): Не указаны полные академические фильтры и нет фильтра по группе. Возвращается пустой список.");
+                    return Collections.emptyList();
+                }
             }
         } else {
-            if (userGroupName == null || userGroupName.isBlank()) {
-                log.warn("USER REQUEST: Для пользователя-студента не указана группа. Расписание не будет загружено.");
+            if (groupNameToFilterBy == null || groupNameToFilterBy.isBlank()) {
+                log.warn("USER REQUEST (Academic): Для пользователя-студента не определена группа. Расписание не будет загружено.");
                 return Collections.emptyList();
             }
-            log.info("USER REQUEST: Загрузка записей расписания для группы {}: Год={}, Семестр={}, Неделя={}", userGroupName, academicYear, semester, weekNumber);
+            log.info("USER REQUEST (Academic): Group {}, Year={}, Sem={}, Week={}", groupNameToFilterBy, academicYear, semester, weekNumber);
             if (academicYear != null && !academicYear.isEmpty() && semester != null && weekNumber != null) {
-                entries = repository.findByGroupNameAndAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(userGroupName, academicYear, semester, weekNumber);
+                entries = repository.findByGroupNameAndAcademicYearAndSemesterAndWeekNumberOrderByStartTimeAsc(groupNameToFilterBy, academicYear, semester, weekNumber);
             } else if (academicYear != null && !academicYear.isEmpty() && semester != null) {
-                entries = repository.findByGroupNameAndAcademicYearAndSemesterOrderByStartTimeAsc(userGroupName, academicYear, semester);
+                entries = repository.findByGroupNameAndAcademicYearAndSemesterOrderByStartTimeAsc(groupNameToFilterBy, academicYear, semester);
             } else if (academicYear != null && !academicYear.isEmpty()) {
-                entries = repository.findByGroupNameAndAcademicYearOrderByStartTimeAsc(userGroupName, academicYear);
+                entries = repository.findByGroupNameAndAcademicYearOrderByStartTimeAsc(groupNameToFilterBy, academicYear);
             } else {
-                entries = repository.findByGroupNameOrderByStartTimeAsc(userGroupName);
+                entries = repository.findByGroupNameOrderByStartTimeAsc(groupNameToFilterBy);
             }
         }
         return entries.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleEntryDto> getEntriesForWeek(LocalDate weekStartDateInput, String userGroupName, boolean isAdmin) {
+    public List<ScheduleEntryDto> getEntriesForWeek(LocalDate weekStartDateInput, String groupNameToFilterBy, boolean isAdmin) {
         LocalDate start = weekStartDateInput.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate end = start.plusDays(6);
         LocalDateTime startOfWeekDateTime = start.atStartOfDay();
         LocalDateTime endOfWeekDateTime = end.atTime(LocalTime.MAX);
+
         List<ScheduleEntry> entries;
         if (isAdmin) {
-            log.debug("ADMIN REQUEST: Загрузка записей расписания для календарной недели: {} - {}", startOfWeekDateTime, endOfWeekDateTime);
-            entries = repository.findByStartTimeBetweenOrderByStartTimeAsc(startOfWeekDateTime, endOfWeekDateTime);
+            log.debug("ADMIN REQUEST (Calendar): Week {} - {}, GroupFilter={}", startOfWeekDateTime, endOfWeekDateTime, groupNameToFilterBy);
+            if (groupNameToFilterBy != null && !groupNameToFilterBy.isBlank()) {
+                entries = repository.findByGroupNameAndStartTimeBetweenOrderByStartTimeAsc(groupNameToFilterBy, startOfWeekDateTime, endOfWeekDateTime);
+            } else {
+                entries = repository.findByStartTimeBetweenOrderByStartTimeAsc(startOfWeekDateTime, endOfWeekDateTime);
+            }
         } else {
-            if (userGroupName == null || userGroupName.isBlank()) {
-                log.warn("USER REQUEST: Для пользователя-студента не указана группа. Расписание по календарной неделе не будет загружено.");
+            if (groupNameToFilterBy == null || groupNameToFilterBy.isBlank()) {
+                log.warn("USER REQUEST (Calendar): Для пользователя-студента не определена группа. Расписание по календарной неделе не будет загружено.");
                 return Collections.emptyList();
             }
-            log.debug("USER REQUEST: Загрузка записей расписания для группы {} для календарной недели: {} - {}", userGroupName, startOfWeekDateTime, endOfWeekDateTime);
-            entries = repository.findByGroupNameAndStartTimeBetweenOrderByStartTimeAsc(userGroupName, startOfWeekDateTime, endOfWeekDateTime);
+            log.debug("USER REQUEST (Calendar): Group {}, Week {} - {}", groupNameToFilterBy, startOfWeekDateTime, endOfWeekDateTime);
+            entries = repository.findByGroupNameAndStartTimeBetweenOrderByStartTimeAsc(groupNameToFilterBy, startOfWeekDateTime, endOfWeekDateTime);
         }
         return entries.stream().map(this::convertToDto).collect(Collectors.toList());
     }
@@ -131,6 +148,7 @@ public class ScheduleService {
         log.info("Обновление записи расписания с ID {}: {}", id, dto);
         ScheduleEntry existingEntry = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Запись расписания с ID " + id + " не найдена для обновления"));
+
         existingEntry.setSubjectName(dto.getSubjectName());
         existingEntry.setTeacherName(dto.getTeacherName());
         existingEntry.setRoom(dto.getRoom());
@@ -141,6 +159,7 @@ public class ScheduleService {
         existingEntry.setWeekNumber(dto.getWeekNumber());
         existingEntry.setGroupName(dto.getGroupName());
         existingEntry.setSubjectType(dto.getSubjectType());
+
         ScheduleEntry updatedEntry = repository.save(existingEntry);
         log.info("Запись расписания с ID {} успешно обновлена", updatedEntry.getId());
         return convertToDto(updatedEntry);

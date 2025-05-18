@@ -12,15 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriUtils; // Для URL кодирования
+import org.springframework.web.util.UriUtils;
 
-import java.io.UnsupportedEncodingException; // Для обработки исключения URLEncoder
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
@@ -60,7 +59,7 @@ public class ScheduleController {
         model.addAttribute("academicYears", Arrays.asList("2024-2025", "2025-2026", "2026-2027"));
         model.addAttribute("semesters", Arrays.asList(1, 2));
         List<Integer> weeks = new ArrayList<>();
-        for (int i = 1; i <= 18; i++) weeks.add(i);
+        for (int i = 1; i <= 15; i++) weeks.add(i);
         model.addAttribute("weekNumbers", weeks);
         model.addAttribute("availableGroups", List.of("ВТ-23А", "ВТ-23Б", "ПИ-22А", "ИС-21А"));
         model.addAttribute("currentUserGroupName", currentUserGroupName);
@@ -93,10 +92,12 @@ public class ScheduleController {
             model.addAttribute("cancelFormYear", formEntry.getAcademicYear());
             model.addAttribute("cancelFormSemester", formEntry.getSemester());
             model.addAttribute("cancelFormWeek", formEntry.getWeekNumber());
+            model.addAttribute("cancelFormGroupName", formEntry.getGroupName());
         } else {
             model.addAttribute("cancelFormYear", currentFilterAcademicYear);
             model.addAttribute("cancelFormSemester", currentFilterSemester);
             model.addAttribute("cancelFormWeek", currentFilterWeek);
+            model.addAttribute("cancelFormGroupName", isAdmin ? null : currentUserGroupName);
         }
 
         String formEntryAcademicYear = (formEntry != null) ? formEntry.getAcademicYear() : null;
@@ -127,24 +128,34 @@ public class ScheduleController {
             @RequestParam(value = "academicYear", required = false) String filterAcademicYear,
             @RequestParam(value = "semester", required = false) Integer filterSemester,
             @RequestParam(value = "week", required = false) Integer filterWeekNumber,
-            @RequestParam(value = "groupName", required = false) String filterGroupName,
+            @RequestParam(value = "groupName", required = false) String filterGroupNameFromRequest,
             @RequestParam(value = "calendarWeek", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate requestedCalendarDate,
             Model model, Authentication authentication) {
 
-        log.info(">>> Запрос на расписание. Фильтры: Год [{}], Сем [{}], Неделя [{}], Группа [{}]. Календ.Неделя [{}]",
-                filterAcademicYear, filterSemester, filterWeekNumber, filterGroupName, requestedCalendarDate);
+        log.info(">>> Запрос на расписание. Фильтры: Год [{}], Сем [{}], Неделя [{}], Группа из запроса [{}]. Календ.Неделя [{}]",
+                filterAcademicYear, filterSemester, filterWeekNumber, filterGroupNameFromRequest, requestedCalendarDate);
 
         String currentPrincipalName = authentication.getName();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
         String userGroupName = null;
-        User currentUser = userRepository.findByUsername(currentPrincipalName).orElse(null);
+        User currentUser = userRepository.findByUsername(currentPrincipalName).orElse(null); // ИСПРАВЛЕНО/ДОБАВЛЕНО: инициализация currentUser
         if (currentUser != null && !isAdmin) {
             userGroupName = currentUser.getGroupName();
         }
 
-        String groupNameToFilterBy = isAdmin ? filterGroupName : userGroupName;
+        String groupNameToFilterBy;
+        if (isAdmin) {
+            if (filterGroupNameFromRequest != null && !filterGroupNameFromRequest.isBlank()) {
+                groupNameToFilterBy = filterGroupNameFromRequest;
+                model.addAttribute("selectedGroupName", filterGroupNameFromRequest);
+            } else {
+                groupNameToFilterBy = null;
+            }
+        } else {
+            groupNameToFilterBy = userGroupName;
+        }
 
         populateCommonModelAttributes(model, filterAcademicYear, filterSemester, filterWeekNumber, null, userGroupName, isAdmin);
         addActivePageAttributes(model);
@@ -163,9 +174,6 @@ public class ScheduleController {
                 model.addAttribute("selectedAcademicYear", filterAcademicYear);
                 model.addAttribute("selectedSemester", filterSemester);
                 model.addAttribute("selectedWeekNumber", filterWeekNumber);
-                if (isAdmin && filterGroupName != null && !filterGroupName.isBlank()) {
-                    model.addAttribute("selectedGroupName", filterGroupName);
-                }
             } else if (requestedCalendarDate != null) {
                 log.info("--- Применена КАЛЕНДАРНАЯ фильтрация: Дата={}, Группа для фильтра={}", requestedCalendarDate, groupNameToFilterBy);
                 displayWeekStart = requestedCalendarDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -189,7 +197,9 @@ public class ScheduleController {
         model.addAttribute("weekDates", weekDates);
 
         List<LocalTime> timeSlots = new ArrayList<>();
-        for (int hour = 8; hour < 20; hour++) { timeSlots.add(LocalTime.of(hour, 0)); }
+        for (int hour = 0; hour < 24; hour++) {
+            timeSlots.add(LocalTime.of(hour, 0));
+        }
         model.addAttribute("timeSlots", timeSlots);
 
         Map<LocalDate, Map<LocalTime, List<ScheduleEntryDto>>> scheduleMap = new HashMap<>();
@@ -199,6 +209,7 @@ public class ScheduleController {
                     .collect(Collectors.groupingBy(
                             e -> e.getStartTime().toLocalDate(),
                             Collectors.groupingBy(
+                                    // Группируем по часу начала записи
                                     e -> e.getStartTime().toLocalTime().withMinute(0).withSecond(0).withNano(0),
                                     Collectors.toList()
                             )
@@ -221,13 +232,10 @@ public class ScheduleController {
         ScheduleEntryDto newEntry = new ScheduleEntryDto();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(g -> g.getAuthority().equals("ROLE_ADMIN"));
         String userGroupName = null;
-
-        if (!isAdmin) {
-            User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
-            if (currentUser != null) {
-                userGroupName = currentUser.getGroupName();
-                newEntry.setGroupName(userGroupName);
-            }
+        User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null); // ИСПРАВЛЕНО/ДОБАВЛЕНО
+        if (!isAdmin && currentUser != null) {
+            userGroupName = currentUser.getGroupName();
+            newEntry.setGroupName(userGroupName);
         }
 
         if (activeYear != null) newEntry.setAcademicYear(activeYear);
@@ -246,9 +254,9 @@ public class ScheduleController {
         log.debug("Запрос формы для редактирования записи расписания ID: {}", id);
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(g -> g.getAuthority().equals("ROLE_ADMIN"));
         String userGroupName = null;
-        if (!isAdmin) {
-            User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
-            if (currentUser != null) userGroupName = currentUser.getGroupName();
+        User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null); // ИСПРАВЛЕНО/ДОБАВЛЕНО
+        if (!isAdmin && currentUser != null) {
+            userGroupName = currentUser.getGroupName();
         }
         try {
             ScheduleEntryDto entryDto = scheduleService.getEntryById(id);
@@ -270,25 +278,30 @@ public class ScheduleController {
         }
     }
 
-    private String buildRedirectUrl(ScheduleEntryDto entryDto, boolean isAdmin) {
+    private String encodeURLParam(String param) {
+        if (param == null || param.isBlank()) return "";
+        try {
+            return URLEncoder.encode(param, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            log.warn("Не удалось URL-кодировать параметр: {}", param, e);
+            return param;
+        }
+    }
+
+    private String buildRedirectUrl(ScheduleEntryDto entryDto, boolean isAdmin, String currentFilterGroupName) {
         StringBuilder urlBuilder = new StringBuilder("/schedule?academicYear=");
         urlBuilder.append(encodeURLParam(entryDto.getAcademicYear()));
         urlBuilder.append("&semester=").append(entryDto.getSemester());
         urlBuilder.append("&week=").append(entryDto.getWeekNumber());
-        if (isAdmin && entryDto.getGroupName() != null && !entryDto.getGroupName().isBlank()) {
-            urlBuilder.append("&groupName=").append(encodeURLParam(entryDto.getGroupName()));
+
+        if (isAdmin) {
+            String groupNameToRedirect = (currentFilterGroupName != null && !currentFilterGroupName.isBlank()) ?
+                    currentFilterGroupName : entryDto.getGroupName();
+            if (groupNameToRedirect != null && !groupNameToRedirect.isBlank()) {
+                urlBuilder.append("&groupName=").append(encodeURLParam(groupNameToRedirect));
+            }
         }
         return urlBuilder.toString();
-    }
-
-    private String encodeURLParam(String param) {
-        if (param == null) return "";
-        try {
-            return UriUtils.encode(param, StandardCharsets.UTF_8); // Используем UriUtils для более корректного кодирования
-        } catch (Exception e) { // UnsupportedEncodingException больше не выбрасывается UriUtils.encode с UTF-8
-            log.warn("Не удалось URL-кодировать параметр: {}", param, e);
-            return param; // Возвращаем исходный в случае редкой ошибки
-        }
     }
 
 
@@ -296,20 +309,31 @@ public class ScheduleController {
     public String saveEntry(@Valid @ModelAttribute("entry") ScheduleEntryDto entryDto,
                             BindingResult bindingResult,
                             RedirectAttributes redirectAttributes,
-                            Model model, Authentication authentication) {
+                            Model model, Authentication authentication,
+                            @RequestParam(value = "groupName", required = false) String filterGroupNameFromPage) { // Группа, которая была в фильтре на главной
         log.info("Попытка сохранения новой записи расписания: {}", entryDto);
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(g -> g.getAuthority().equals("ROLE_ADMIN"));
         String userGroupName = null;
-        User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null); // ИСПРАВЛЕНО/ДОБАВЛЕНО
 
         if (!isAdmin && currentUser != null) {
             userGroupName = currentUser.getGroupName();
-            if (userGroupName != null && (entryDto.getGroupName() == null || entryDto.getGroupName().isBlank())) {
-                entryDto.setGroupName(userGroupName);
-            } else if (userGroupName != null && !userGroupName.equals(entryDto.getGroupName())) {
-                entryDto.setGroupName(userGroupName);
+            if (userGroupName != null) {
+                if (entryDto.getGroupName() == null || entryDto.getGroupName().isBlank()) {
+                    entryDto.setGroupName(userGroupName);
+                    log.info("Для новой записи студента {} установлена группа {}", authentication.getName(), userGroupName);
+                } else if (!entryDto.getGroupName().equals(userGroupName)) {
+                    log.warn("Студент {} пытается создать запись для группы {}. Устанавливается его группа {}.",
+                            authentication.getName(), entryDto.getGroupName(), userGroupName);
+                    entryDto.setGroupName(userGroupName);
+                }
+            } else if (entryDto.getGroupName() == null || entryDto.getGroupName().isBlank()){ // Студент без группы пытается создать запись без группы
+                bindingResult.rejectValue("groupName", "error.entry", "Для вашей учетной записи не определена группа. Укажите группу или обратитесь к администратору.");
             }
+        } else if (isAdmin && (entryDto.getGroupName() == null || entryDto.getGroupName().isBlank())) {
+            bindingResult.rejectValue("groupName", "error.entry", "Администратор должен указать группу для записи.");
         }
+
 
         if (bindingResult.hasErrors()) {
             log.warn("Ошибки валидации при сохранении записи расписания: {}", bindingResult.getAllErrors());
@@ -322,7 +346,7 @@ public class ScheduleController {
             scheduleService.createEntry(entryDto);
             redirectAttributes.addFlashAttribute("successMessage", "Запись успешно добавлена!");
             log.info("Новая запись расписания успешно сохранена.");
-            return "redirect:" + buildRedirectUrl(entryDto, isAdmin);
+            return "redirect:" + buildRedirectUrl(entryDto, isAdmin, filterGroupNameFromPage);
         } catch (Exception e) {
             log.error("Ошибка при сохранении записи расписания: {}", e.getMessage(), e);
             model.addAttribute("errorMessage", "Ошибка при сохранении записи: " + e.getMessage());
@@ -337,11 +361,12 @@ public class ScheduleController {
     public String updateEntry(@Valid @ModelAttribute("entry") ScheduleEntryDto entryDto,
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes,
-                              Model model, Authentication authentication) {
+                              Model model, Authentication authentication,
+                              @RequestParam(value = "groupName", required = false) String filterGroupNameFromPage) { // Группа, которая была в фильтре на главной
         log.info("Попытка обновления записи расписания ID {}: {}", entryDto.getId(), entryDto);
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(g -> g.getAuthority().equals("ROLE_ADMIN"));
         String userGroupName = null; // Группа текущего пользователя
-        User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        User currentUser = userRepository.findByUsername(authentication.getName()).orElse(null); // ИСПРАВЛЕНО/ДОБАВЛЕНО
 
         if (entryDto.getId() == null) {
             log.error("Попытка обновления записи расписания без ID!");
@@ -365,14 +390,19 @@ public class ScheduleController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Вы не можете изменять записи для другой группы.");
                 return "redirect:/schedule";
             }
-            if (userGroupName != null) {
-                entryDto.setGroupName(userGroupName); // Студент не может сменить группу записи
+            if (userGroupName != null) { // Принудительно ставим группу студента при обновлении им
+                entryDto.setGroupName(userGroupName);
+            } else if (entryDto.getGroupName() == null || entryDto.getGroupName().isBlank()){
+                bindingResult.rejectValue("groupName", "error.entry", "Для вашей учетной записи не определена группа. Укажите группу или обратитесь к администратору.");
             }
+        } else if (isAdmin && (entryDto.getGroupName() == null || entryDto.getGroupName().isBlank())) {
+            bindingResult.rejectValue("groupName", "error.entry", "Администратор должен указать группу для записи.");
         }
 
         if (bindingResult.hasErrors()) {
             log.warn("Ошибки валидации при обновлении записи расписания ID {}: {}", entryDto.getId(), bindingResult.getAllErrors());
             model.addAttribute("pageTitle", "Редактировать запись расписания (ID: " + entryDto.getId() + ") (Ошибка!)");
+            // Передаем entryDto (с ошибками и введенными данными) как formEntry
             populateCommonModelAttributes(model, entryDto.getAcademicYear(), entryDto.getSemester(), entryDto.getWeekNumber(), entryDto, userGroupName, isAdmin);
             addActivePageAttributes(model);
             return "schedule-form";
@@ -381,8 +411,8 @@ public class ScheduleController {
             scheduleService.updateEntry(entryDto.getId(), entryDto);
             redirectAttributes.addFlashAttribute("successMessage", "Запись успешно обновлена!");
             log.info("Запись расписания ID {} успешно обновлена.", entryDto.getId());
-            return "redirect:" + buildRedirectUrl(entryDto, isAdmin);
-        } catch (EntityNotFoundException e) { // Уже проверено выше, но на всякий случай
+            return "redirect:" + buildRedirectUrl(entryDto, isAdmin, filterGroupNameFromPage);
+        } catch (EntityNotFoundException e) {
             log.warn("Запись расписания с ID {} не найдена для обновления.", entryDto.getId());
             redirectAttributes.addFlashAttribute("errorMessage", "Запись с ID " + entryDto.getId() + " не найдена.");
             return "redirect:/schedule";
@@ -397,7 +427,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteEntry(@PathVariable Long id, RedirectAttributes redirectAttributes, Authentication authentication) {
+    public String deleteEntry(@PathVariable Long id, RedirectAttributes redirectAttributes, Authentication authentication,
+                              @RequestParam(value = "groupName", required = false) String filterGroupNameFromPage) { // Группа, которая была в фильтре на главной
         log.info("Запрос на удаление записи расписания ID: {}", id);
         String targetRedirectUrl = "/schedule";
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(g -> g.getAuthority().equals("ROLE_ADMIN"));
@@ -413,13 +444,11 @@ public class ScheduleController {
                     return "redirect:/schedule";
                 }
             }
-
             scheduleService.deleteEntry(id);
             redirectAttributes.addFlashAttribute("successMessage", "Запись ID " + id + " успешно удалена.");
             log.info("Запись расписания ID {} успешно удалена.", id);
-            // Формируем URL для редиректа на основе данных удаленной записи
             if (entryDto != null) {
-                targetRedirectUrl = buildRedirectUrl(entryDto, isAdmin);
+                targetRedirectUrl = buildRedirectUrl(entryDto, isAdmin, filterGroupNameFromPage);
             }
         } catch (EntityNotFoundException e) {
             log.warn("Запись расписания с ID {} не найдена для удаления.", id);
