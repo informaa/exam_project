@@ -26,17 +26,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/schedule/new", "/schedule/edit/**", "/schedule/save", "/schedule/update", "/schedule/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/schedule/api/week-boundaries").authenticated()
-                        .requestMatchers("/schedule").authenticated()
+                        .requestMatchers("/schedule/api/week-boundaries").authenticated() // или hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/schedule").authenticated() // или hasAnyRole("ADMIN", "USER")
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
+                        .loginPage("/login") // Указывает Spring Security, что /login - это путь к кастомной странице входа
+                        .loginProcessingUrl("/login") // URL, на который отправляется форма (POST)
                         .defaultSuccessUrl("/schedule", true)
                         .failureUrl("/login?error=true")
-                        .permitAll()
+                        .permitAll() // Разрешает доступ к самой loginPage и loginProcessingUrl
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
