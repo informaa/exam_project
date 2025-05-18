@@ -73,6 +73,34 @@
                                 </select>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('academicYear')}" th:errors="*{academicYear}"></div>
                             </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                <label for="groupName" class="form-label">Группа:<span class="text-danger">*</span></label>
+                                <div th:if="${isAdmin}">
+                                    <select id="groupName" th:field="*{groupName}" class="form-select" th:errorclass="is-invalid" required>
+                                        <option value="">Выберите группу</option>
+                                        <option th:each="group : ${availableGroups}" th:value="${group}" th:text="${group}"></option>
+                                    </select>
+                                </div>
+                                <div th:unless="${isAdmin}">
+                                    <input type="text" th:field="*{groupName}" class="form-control" readonly th:if="*{groupName != null}"/>
+                                    <input type="hidden" th:field="*{groupName}" th:if="*{groupName == null}"/> <p th:if="*{groupName == null}" class="form-text text-danger">Группа не определена для пользователя.</p>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('groupName')}" th:errors="*{groupName}"></div>
+                            </div>
+                                <div class="col-md-6">
+                                    <label for="subjectType" class="form-label">Тип занятия:<span class="text-danger">*</span></label>
+                                    <select id="subjectType" th:field="*{subjectType}" class="form-select" th:errorclass="is-invalid" required>
+                                        <option value="">Выберите тип</option>
+                                        <option value="лекция">Лекция</option>
+                                        <option value="практика">Практика</option>
+                                        <option value="лабораторная">Лабораторная</option>
+                                        <option value="семинар">Семинар</option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('subjectType')}" th:errors="*{subjectType}"></div>
+                                </div>
+                            </div>
+
                             <div class="col-md-4">
                                 <label for="semester" class="form-label">Семестр:<span class="text-danger">*</span></label>
                                 <select id="semester" th:field="*{semester}" class="form-select" th:errorclass="is-invalid" required>
