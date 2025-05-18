@@ -47,7 +47,52 @@
 
 <div class="container-fluid mt-4">
 
-    <form th:action="@{/schedule}" method="get" class="row g-3 align-items-center filter-form"></form>
+    <form th:action="@{/schedule}" method="get" class="row g-3 align-items-center filter-form">
+        <div class="col-md-auto col-6 mb-2 mb-md-0">
+            <label for="filterAcademicYear" class="visually-hidden">Год</label>
+            <select id="filterAcademicYear" name="academicYear" class="form-select form-select-sm">
+                <option value="">Все года</option>
+                <option th:each="year : ${academicYears}" th:value="${year}" th:text="${year}" th:selected="${year == selectedAcademicYear}"></option>
+            </select>
+        </div>
+        <div class="col-md-auto col-6 mb-2 mb-md-0">
+            <label for="filterSemester" class="visually-hidden">Семестр</label>
+            <select id="filterSemester" name="semester" class="form-select form-select-sm">
+                <option value="">Все семестры</option>
+                <option th:each="sem : ${semesters}" th:value="${sem}" th:text="${sem}" th:selected="${sem != null and sem == selectedSemester}"></option>
+            </select>
+        </div>
+        <div class="col-md-auto col-6 mb-2 mb-md-0">
+            <label for="filterWeekNumber" class="visually-hidden">Неделя</label>
+            <select id="filterWeekNumber" name="week" class="form-select form-select-sm">
+                <option value="">Все недели</option>
+                <option th:each="weekNo : ${weekNumbers}" th:value="${weekNo}" th:text="${weekNo}" th:selected="${weekNo != null and weekNo == selectedWeekNumber}"></option>
+            </select>
+        </div>
+
+        <div class="col-md-auto col-6 mb-2 mb-md-0" th:if="${isAdmin}">
+            <label for="filterGroupName" class="visually-hidden">Группа</label>
+            <select id="filterGroupName" name="groupName" class="form-select form-select-sm">
+                <option value="">Все группы</option>
+                <option th:each="group : ${availableGroups}" th:value="${group}" th:text="${group}" th:selected="${group == selectedGroupName}"></option>
+            </select>
+        </div>
+        <div class="col-md-auto col-6 mb-2 mb-md-0 align-self-center" th:unless="${isAdmin}" th:if="${currentUserGroupName != null}">
+            <span class="badge bg-secondary p-2" style="font-size: 0.875rem;" th:text="'Группа: ' + ${currentUserGroupName}"></span>
+        </div>
+
+
+        <div class="col-md-auto col-6 mb-2 mb-md-0">
+            <button type="submit" class="btn btn-info btn-sm w-100"><i class="bi bi-filter"></i> Фильтр</button>
+        </div>
+        <div class="col-md-auto col-6 mb-2 mb-md-0">
+            <a th:href="@{/schedule}" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-x-circle"></i> Сброс</a>
+        </div>
+        <div class="col-md-auto ms-md-auto text-md-end text-center info-text mt-2 mt-md-0">
+            <span class="d-block">Начало семестра: <strong th:text="${semesterStartDate}"></strong></span>
+            <span class="d-block">Конец семестра: <strong th:text="${semesterEndDate}"></strong></span>
+        </div>
+    </form>
 
     <div class="d-flex justify-content-between align-items-center week-nav"></div>
 
