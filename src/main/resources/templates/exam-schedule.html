@@ -15,12 +15,12 @@
             box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
             margin-bottom: 1.5rem;
         }
-        .table th { font-weight: 500; background-color: #f8f9fa; } /* Светлый фон для заголовков таблицы */
+        .table th { font-weight: 500; background-color: #f8f9fa; }
         .table td, .table th { vertical-align: middle; font-size: 0.9rem; }
         .breadcrumb-item a { text-decoration: none; }
         .logout-form button { background: none!important; border: none; padding: 0!important; color: rgba(255,255,255,.55); text-decoration: none; cursor: pointer; display: inline; }
         .logout-form button:hover { text-decoration: underline; color: rgba(255,255,255,.75); }
-        .action-buttons .btn { padding: 0.1rem 0.3rem; font-size: 0.8em; }
+        .action-buttons .btn { padding: 0.1rem 0.3rem; font-size: 0.8em; margin-left: 2px; }
     </style>
 </head>
 <body>
@@ -66,16 +66,16 @@
 
     <div class="filter-bar">
         <form th:action="@{/exams}" method="get" class="row gx-3 gy-2 align-items-center">
-            <div class="col-sm-auto"><label for="yearFilter" class="form-label me-2">Год:</label></div>
+            <div class="col-sm-auto"><label for="yearFilterExam" class="form-label me-2">Год:</label></div>
             <div class="col-sm-2">
-                <select id="yearFilter" name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                <select id="yearFilterExam" name="year" class="form-select form-select-sm">
                     <option th:each="yr : ${academicYears}" th:value="${yr}" th:text="${yr}" th:selected="${yr == selectedYear}"></option>
                 </select>
             </div>
 
-            <div class="col-sm-auto"><label for="periodFilter" class="form-label me-2 ms-sm-3">Академ. период:</label></div>
+            <div class="col-sm-auto"><label for="periodFilterExam" class="form-label me-2 ms-sm-3">Академ. период:</label></div>
             <div class="col-sm-2">
-                <select id="periodFilter" name="period" class="form-select form-select-sm" onchange="this.form.submit()">
+                <select id="periodFilterExam" name="period" class="form-select form-select-sm">
                     <option th:each="p : ${academicPeriods}" th:value="${p}" th:text="${p}" th:selected="${p == selectedPeriod}"></option>
                 </select>
             </div>
@@ -84,17 +84,23 @@
                 <label for="filterExamGroupName" class="form-label me-2 ms-sm-3">Группа:</label>
             </div>
             <div class="col-sm-2" th:if="${isAdmin}">
-                <select id="filterExamGroupName" name="groupName" class="form-select form-select-sm" onchange="this.form.submit()">
+                <select id="filterExamGroupName" name="groupName" class="form-select form-select-sm">
                     <option value="">Все группы</option>
-                    <option th:each="group : ${availableGroups}" th:value="${group}" th:text="${group}" th:selected="${group == selectedGroupName}"></option>
+                    <option th:each="group : ${availableGroups}" th:value="${group}" th:text="${group}" th:selected="${group != null and group.equals(selectedGroupName)}"></option>
                 </select>
             </div>
             <div class="col-sm-auto align-self-center" th:unless="${isAdmin}" th:if="${currentUserGroupName != null}">
                 <span class="badge bg-light text-dark p-2 border" style="font-size: 0.875rem;" th:text="'Группа: ' + ${currentUserGroupName}"></span>
             </div>
 
-
-            <div class="col-sm-auto ms-sm-auto"> <a th:href="@{/exams/export(year=${selectedYear}, period=${selectedPeriod}, groupName=${isAdmin ? selectedGroupName : currentUserGroupName})}" class="btn btn-success btn-sm">
+            <div class="col-sm-auto">
+                <button type="submit" class="btn btn-info btn-sm"><i class="bi bi-filter"></i> Применить</button>
+            </div>
+            <div class="col-sm-auto">
+                <a th:href="@{/exams}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle"></i> Сбросить</a>
+            </div>
+            <div class="col-sm-auto ms-sm-auto"> <a th:href="@{/exams/export(year=${selectedYear}, period=${selectedPeriod}, groupName=${isAdmin ? selectedGroupName : currentUserGroupName})}"
+                                                    class="btn btn-success btn-sm">
                 <i class="bi bi-file-earmark-excel"></i> Выгрузить в MS Excel
             </a>
             </div>
@@ -104,7 +110,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 th:text="'Расписание экзаменов на ' + ${selectedYear} + ' год, ' + ${selectedPeriod} + '-й период' + (${isAdmin && selectedGroupName != null && !selectedGroupName.isEmpty()} ? ' (Группа: ' + ${selectedGroupName} + ')' : '')"></h4>
         <div sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/exams/new}" class="btn btn-primary btn-sm">
+            <a th:href="@{/exams/new(activeYear=${selectedYear}, activePeriod=${selectedPeriod}, activeGroup=${isAdmin ? selectedGroupName : ''})}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-circle"></i> Добавить экзамен
             </a>
         </div>
@@ -118,7 +124,8 @@
                 <th>День недели</th>
                 <th>Время</th>
                 <th>Дисциплина</th>
-                <th>Группа</th> <th>Экзаменатор</th>
+                <th>Группа</th>
+                <th>Экзаменатор</th>
                 <th>Форма контроля</th>
                 <th>Корпус</th>
                 <th>Аудитория</th>
@@ -128,20 +135,22 @@
             </thead>
             <tbody>
             <tr th:if="${exams == null or exams.isEmpty()}">
-                <td colspan="11" class="text-center p-4">Нет данных об экзаменах для выбранного периода.</td> </tr>
+                <td colspan="11" class="text-center p-4">Нет данных об экзаменах для выбранного периода.</td>
+            </tr>
             <tr th:each="exam : ${exams}">
                 <td th:text="${exam.examDate != null ? #temporals.format(exam.examDate, 'dd.MM.yyyy') : ''}"></td>
                 <td th:text="${exam.dayOfWeek}"></td>
                 <td th:text="${(exam.startTime != null ? #temporals.format(exam.startTime, 'HH:mm') : '') + '-' + (exam.endTime != null ? #temporals.format(exam.endTime, 'HH:mm') : '')}"></td>
                 <td th:text="${exam.disciplineName}"></td>
-                <td th:text="${exam.groupName}"></td> <td th:text="${exam.examinerName}"></td>
+                <td th:text="${exam.groupName}"></td>
+                <td th:text="${exam.examinerName}"></td>
                 <td th:text="${exam.controlForm}"></td>
                 <td th:text="${exam.building}"></td>
                 <td th:text="${exam.room}"></td>
                 <td th:text="${exam.additionalInfo}"></td>
                 <td sec:authorize="hasRole('ADMIN')" class="action-buttons text-nowrap">
-                    <a th:href="@{/exams/edit/{id}(id=${exam.id})}" class="btn btn-warning btn-sm" title="Редактировать"><i class="bi bi-pencil-fill"></i></a>
-                    <a th:href="@{/exams/delete/{id}(id=${exam.id})}" class="btn btn-danger btn-sm" title="Удалить"
+                    <a th:href="@{/exams/edit/{id}(id=${exam.id}, activeYear=${selectedYear}, activePeriod=${selectedPeriod}, activeGroup=${selectedGroupName})}" class="btn btn-warning btn-sm" title="Редактировать"><i class="bi bi-pencil-fill"></i></a>
+                    <a th:href="@{/exams/delete/{id}(id=${exam.id}, year=${selectedYear}, period=${selectedPeriod}, groupName=${selectedGroupName})}" class="btn btn-danger btn-sm" title="Удалить"
                        onclick="return confirm('Вы уверены, что хотите удалить эту запись об экзамене?');"><i class="bi bi-trash-fill"></i></a>
                 </td>
             </tr>

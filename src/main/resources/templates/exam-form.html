@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle ?: 'Форма Расписания Экзаменов'}">Форма Расписания Экзаменов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { padding-top: 70px; background-color: #f8f9fa; }
+        .card { margin-top: 20px; }
+        .error-message { color: #dc3545; font-size: 0.875em; }
+        .logout-form button { background: none!important; border: none; padding: 0!important; color: rgba(255,255,255,.55); text-decoration: none; cursor: pointer; display: inline; }
+        .logout-form button:hover { text-decoration: underline; color: rgba(255,255,255,.75); }
+        .form-control.is-invalid ~ .invalid-feedback,
+        .form-select.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/schedule}"><i class="bi bi-calendar-week"></i> UniversitySchedule</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${isSchedulePageActive} ? 'active' : ''" th:href="@{/schedule}">Основное расписание</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${isExamsPageActive} ? 'active' : ''" th:href="@{/exams}">Расписание экзаменов</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item" sec:authorize="isAuthenticated()"><span class="navbar-text me-3"><i class="bi bi-person-circle"></i> <span sec:authentication="principal.username">Username</span></span></li>
+                <li class="nav-item" sec:authorize="isAuthenticated()"><form th:action="@{/logout}" method="post" class="logout-form d-flex"><button type="submit" class="nav-link" style="color: rgba(255,255,255,.55);"><i class="bi bi-box-arrow-right"></i> Выйти</button></form></li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()"><a class="nav-link" th:href="@{/login}"><i class="bi bi-box-arrow-in-right"></i> Войти</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0" th:text="${pageTitle}">Форма Записи Экзамена</h4>
+                </div>
+                <div class="card-body">
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <form th:action="${examEntry.id == null} ? @{/exams/save} : @{/exams/update}"
+                          th:object="${examEntry}" method="post" class="needs-validation" novalidate>
+
+                        <input type="hidden" th:field="*{id}" />
+
+                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger mb-3">
+                            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="mb-0"></p>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label for="academicYear" class="form-label">Академ. год:<span class="text-danger">*</span></label>
+                                <select id="academicYear" th:field="*{academicYear}" class="form-select" th:errorclass="${#fields.hasErrors('academicYear')} ? 'is-invalid' : ''" required>
+                                    <option value="">Выберите год</option>
+                                    <option th:each="yr : ${academicYears}" th:value="${yr}" th:text="${yr}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('academicYear')}" th:errors="*{academicYear}"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="academicPeriod" class="form-label">Академ. период:<span class="text-danger">*</span></label>
+                                <select id="academicPeriod" th:field="*{academicPeriod}" class="form-select" th:errorclass="${#fields.hasErrors('academicPeriod')} ? 'is-invalid' : ''" required>
+                                    <option value="">Выберите период</option>
+                                    <option th:each="p : ${academicPeriods}" th:value="${p}" th:text="${p}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('academicPeriod')}" th:errors="*{academicPeriod}"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="groupName" class="form-label">Группа:<span class="text-danger">*</span></label>
+                                <div th:if="${isAdmin}">
+                                    <select id="groupName" th:field="*{groupName}" class="form-select" th:errorclass="${#fields.hasErrors('groupName')} ? 'is-invalid' : ''" required>
+                                        <option value="">Выберите группу</option>
+                                        <option th:each="group : ${availableGroups}" th:value="${group}" th:text="${group}"></option>
+                                    </select>
+                                </div>
+                                <div th:unless="${isAdmin}">
+                                    <input type="text" th:field="*{groupName}" class="form-control" readonly th:if="*{groupName != null}"/>
+                                    <p th:if="*{groupName == null && examEntry.id != null}" class="form-text text-warning">Группа для этой записи не была установлена.</p>
+                                    <p th:if="*{groupName == null && examEntry.id == null}" class="form-text text-danger">Ваша группа не определена. Обратитесь к администратору.</p>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('groupName')}" th:errors="*{groupName}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label for="examDate" class="form-label">Дата:<span class="text-danger">*</span></label>
+                                <input type="date" id="examDate" th:field="*{examDate}" class="form-control" th:errorclass="${#fields.hasErrors('examDate')} ? 'is-invalid' : ''" required/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('examDate')}" th:errors="*{examDate}"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="startTime" class="form-label">Время начала:<span class="text-danger">*</span></label>
+                                <input type="time" id="startTime" th:field="*{startTime}" class="form-control" th:errorclass="${#fields.hasErrors('startTime')} ? 'is-invalid' : ''" required step="60"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="endTime" class="form-label">Время окончания:<span class="text-danger">*</span></label>
+                                <input type="time" id="endTime" th:field="*{endTime}" class="form-control" th:errorclass="${#fields.hasErrors('endTime')} ? 'is-invalid' : ''" required step="60"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></div>
+                            </div>
+                            <div class="col-12 error-message mt-1" th:if="${#fields.hasErrors('examEndTimeAfterStartTime')}" th:errors="*{examEndTimeAfterStartTime}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="disciplineName" class="form-label">Дисциплина:<span class="text-danger">*</span></label>
+                            <input type="text" id="disciplineName" th:field="*{disciplineName}" class="form-control" th:errorclass="${#fields.hasErrors('disciplineName')} ? 'is-invalid' : ''" required/>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('disciplineName')}" th:errors="*{disciplineName}"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="examinerName" class="form-label">Экзаменатор:</label>
+                                <input type="text" id="examinerName" th:field="*{examinerName}" class="form-control" th:errorclass="${#fields.hasErrors('examinerName')} ? 'is-invalid' : ''"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('examinerName')}" th:errors="*{examinerName}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="controlForm" class="form-label">Форма контроля:</label>
+                                <input type="text" id="controlForm" th:field="*{controlForm}" class="form-control" th:errorclass="${#fields.hasErrors('controlForm')} ? 'is-invalid' : ''"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('controlForm')}" th:errors="*{controlForm}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="building" class="form-label">Корпус:</label>
+                                <input type="text" id="building" th:field="*{building}" class="form-control" th:errorclass="${#fields.hasErrors('building')} ? 'is-invalid' : ''"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('building')}" th:errors="*{building}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="room" class="form-label">Аудитория:</label>
+                                <input type="text" id="room" th:field="*{room}" class="form-control" th:errorclass="${#fields.hasErrors('room')} ? 'is-invalid' : ''"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('room')}" th:errors="*{room}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="additionalInfo" class="form-label">Доп. расписание/информация:</label>
+                            <textarea id="additionalInfo" th:field="*{additionalInfo}" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end">
+                            <a th:href="@{/exams(year=${cancelFormYear}, period=${cancelFormPeriod}, groupName=${cancelFormGroupName})}" class="btn btn-secondary me-2">Отмена</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

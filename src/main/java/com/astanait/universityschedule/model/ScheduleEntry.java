@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+// Класс `ScheduleEntry` описывает одну запись расписания, например, одно занятие
 public class ScheduleEntry {
 
     @Id

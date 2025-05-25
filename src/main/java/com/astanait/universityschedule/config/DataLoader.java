@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+// Объявление класса и инъекция зависимостей
 @Component
 public class DataLoader implements ApplicationRunner {
 
@@ -31,11 +32,13 @@ public class DataLoader implements ApplicationRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Метод run() и логирование
     @Override
     @Transactional
     public void run(ApplicationArguments args) throws Exception {
         log.info("Загрузка начальных данных...");
 
+        // Создание ролей
         Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
             log.info("Создание роли ROLE_ADMIN");
             return roleRepository.save(new Role("ROLE_ADMIN"));
@@ -46,6 +49,7 @@ public class DataLoader implements ApplicationRunner {
             return roleRepository.save(new Role("ROLE_USER"));
         });
 
+        // Создание/обновление пользователя-админа
         String adminUsername = "admin";
         String adminPassword = "adminpassword";
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
@@ -57,20 +61,31 @@ public class DataLoader implements ApplicationRunner {
                         needsSave = true;
                         log.info("Роли для '{}' обновлены.", adminUsername);
                     }
+
+                    // Сравниваем текущий пароль в БД с тем, который мы хотим установить
+                    // Если они разные — шифруем новый пароль и обновляем запись
                     if (!passwordEncoder.matches(adminPassword, existingAdmin.getPassword())) {
                         existingAdmin.setPassword(passwordEncoder.encode(adminPassword));
                         needsSave = true;
                         log.info("Пароль для '{}' обновлен.", adminUsername);
                     }
+
+                    // У администратора не должно быть группы (он не студент)
+                    // Если у существующего админа группа указана — очищаем её
                     if (existingAdmin.getGroupName() != null) {
                         existingAdmin.setGroupName(null);
                         needsSave = true;
                         log.info("Группа для '{}' очищена.", adminUsername);
                     }
+                    // Если хоть одно поле изменилось — сохраняем обновлённого пользователя в БД
                     if (needsSave) {
                         userRepository.save(existingAdmin);
                     }
                 },
+                // Создаём нового пользователя с ролью администратора
+                // Пароль шифруем
+                // Группу оставляем null, потому что у админов её нет
+                // Сохраняем в БД и логируем
                 () -> {
                     User adminUser = new User(adminUsername, passwordEncoder.encode(adminPassword), true, null);
                     adminUser.setRoles(Set.of(adminRole));
@@ -79,6 +94,7 @@ public class DataLoader implements ApplicationRunner {
                 }
         );
 
+        // Создание/обновление пользователя-студента (studentA)
         String studentAUsername = "studentA";
         String studentAPassword = "passA";
         String studentAGroup = "ВТ-23А";

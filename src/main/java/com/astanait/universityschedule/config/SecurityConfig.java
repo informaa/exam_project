@@ -26,8 +26,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/schedule/new", "/schedule/edit/**", "/schedule/save", "/schedule/update", "/schedule/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/schedule/api/week-boundaries").authenticated() // или hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/schedule").authenticated() // или hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/schedule/api/week-boundaries").authenticated()
+                        .requestMatchers("/schedule").authenticated()
+                        .requestMatchers("/exams/new", "/exams/edit/**", "/exams/save", "/exams/update", "/exams/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/exams", "/exams/export").authenticated()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest().authenticated()
                 )
