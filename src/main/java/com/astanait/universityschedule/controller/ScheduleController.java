@@ -51,13 +51,15 @@ public class ScheduleController {
     }
 
     // Метод populateCommonModelAttributes — заполнение общих атрибутов модели
-    private void populateCommonModelAttributes(Model model,
-                                               String currentFilterAcademicYear,
-                                               Integer currentFilterSemester,
-                                               Integer currentFilterWeek,
-                                               ScheduleEntryDto formEntry,
-                                               String currentUserGroupName,
-                                               boolean isAdmin) {
+    private void populateCommonModelAttributes(
+            Model model, // передача данных в шаблон
+            String currentFilterAcademicYear, // текущие фильтры
+            Integer currentFilterSemester,
+            Integer currentFilterWeek,
+            ScheduleEntryDto formEntry, // запись расписания для редактирования или создания
+            String currentUserGroupName, // группа пользователя
+            boolean isAdmin) { // флаг, является ли пользователь администратором
+
         model.addAttribute("academicYears", Arrays.asList("2024-2025", "2025-2026", "2026-2027")); // список учебных годов
         model.addAttribute("semesters", Arrays.asList(1, 2)); // список семестров
         List<Integer> weeks = new ArrayList<>();
@@ -122,6 +124,7 @@ public class ScheduleController {
         Integer formEntrySemester = (formEntry != null) ? formEntry.getSemester() : null;
         Integer formEntryWeekNumber = (formEntry != null) ? formEntry.getWeekNumber() : null;
 
+        // Проверяем: пользователь указал все три параметра
         if (formEntryAcademicYear != null && formEntrySemester != null && formEntryWeekNumber != null) {
             try {
                 // Дата начала недели через calculateStartDateForAcademicWeek
@@ -295,7 +298,7 @@ public class ScheduleController {
 
         // Создаём новый ScheduleEntryDto — DTO для формы добавления записи в расписание
         ScheduleEntryDto newEntry = new ScheduleEntryDto();
-        // Проверяем, есть ли у пользователя роль Админа
+        // Проверяем, есть ли у пользователя роль Админ
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(g -> g.getAuthority().equals("ROLE_ADMIN"));
 

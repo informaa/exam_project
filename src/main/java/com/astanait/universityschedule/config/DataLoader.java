@@ -52,10 +52,12 @@ public class DataLoader implements ApplicationRunner {
         // Создание/обновление пользователя-админа
         String adminUsername = "admin";
         String adminPassword = "adminpassword";
+        // проверяем: есть ли в БД пользователь с таким логином ("admin")
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
                 existingAdmin -> {
                     log.info("Пользователь '{}' уже существует. Проверка/обновление данных...", adminUsername);
                     boolean needsSave = false;
+                    // Если у пользователя нет роли `adminRole` или их несколько — заменяем на одну `Set.of(adminRole)` и помечаем `needsSave = true`
                     if (!existingAdmin.getRoles().contains(adminRole) || existingAdmin.getRoles().size() != 1) {
                         existingAdmin.setRoles(Set.of(adminRole));
                         needsSave = true;
@@ -70,7 +72,7 @@ public class DataLoader implements ApplicationRunner {
                         log.info("Пароль для '{}' обновлен.", adminUsername);
                     }
 
-                    // У администратора не должно быть группы (он не студент)
+                    // У администратора не должно быть группы
                     // Если у существующего админа группа указана — очищаем её
                     if (existingAdmin.getGroupName() != null) {
                         existingAdmin.setGroupName(null);
@@ -82,10 +84,10 @@ public class DataLoader implements ApplicationRunner {
                         userRepository.save(existingAdmin);
                     }
                 },
-                // Создаём нового пользователя с ролью администратора
-                // Пароль шифруем
-                // Группу оставляем null, потому что у админов её нет
-                // Сохраняем в БД и логируем
+                 /* Создаём нового пользователя с ролью администратора
+                 Пароль шифруем
+                 Группу оставляем null, потому что у админов её нет
+                 Сохраняем в БД и логируем */
                 () -> {
                     User adminUser = new User(adminUsername, passwordEncoder.encode(adminPassword), true, null);
                     adminUser.setRoles(Set.of(adminRole));

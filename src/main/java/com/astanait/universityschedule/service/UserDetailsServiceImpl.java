@@ -37,10 +37,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toSet());
 
-        // Создаём объект `User` из Spring Security с данными:
-        // логин, пароль, активность,
-        // состояние аккаунта (срок действия, блокировка),
-        // роли (`authorities`).
+         /* Создаём объект `User` из Spring Security с данными:
+         логин, пароль, активность,
+         состояние аккаунта (срок действия, блокировка),
+         роли (`authorities`). */
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
