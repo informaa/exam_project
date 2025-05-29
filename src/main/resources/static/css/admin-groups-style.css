@@ -1,0 +1,289 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Корневые переменные для глобальных стилей */
+:root {
+    --primary-color: #2c3e50; /* Основной цвет */
+    --secondary-color: #3498db; /* Вторичный цвет */
+    --accent-color: #e67e22; /* Акцентный цвет */
+    --success-color: #27ae60; /* Цвет успеха */
+    --danger-color: #c0392b; /* Цвет опасности */
+
+    --light-bg: #f0f2f5; /* Светлый фон */
+    --white-color: #ffffff; /* Белый цвет */
+    --dark-text: #34495e; /* Темный текст */
+    --light-text-desc: #5a6a78; /* Светлый текст для описаний */
+    --border-color: #dee2e6; /* Цвет границы */
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05); /* Легкая тень */
+    --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.08); /* Средняя тень */
+    --border-radius: 10px; /* Радиус скругления границ */
+    --table-header-bg: #f8f9fa; /* Фон заголовка таблицы */
+    --table-hover-bg: #e9ecef; /* Фон при наведении на строку таблицы */
+}
+
+/* Базовые стили для body */
+body {
+    font-family: 'Inter', sans-serif; /* Шрифт */
+    margin: 0; /* Убрать внешние отступы */
+    background-color: var(--light-bg); /* Цвет фона */
+    color: var(--dark-text); /* Цвет текста */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    align-items: center; /* Выравнивание по центру */
+    padding: 25px; /* Внутренние отступы */
+    min-height: 100vh; /* Минимальная высота */
+    font-size: 15px; /* Размер шрифта */
+    line-height: 1.6; /* Межстрочный интервал */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+/* Стили хедера страницы администратора */
+.admin-page-header {
+    width: 100%; /* Ширина 100% */
+    max-width: 1280px; /* Максимальная ширина */
+    padding: 18px 30px; /* Внутренние отступы */
+    background-color: var(--white-color); /* Цвет фона */
+    box-shadow: var(--shadow-light); /* Тень */
+    border-radius: var(--border-radius); /* Скругление углов */
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 35px; /* Внешний отступ снизу */
+    box-sizing: border-box; /* Расчет размеров блока */
+    border-bottom: 3px solid var(--secondary-color); /* Нижняя граница */
+}
+
+.header-logo-title { display: flex; align-items: center; } /* Контейнер для лого и заголовка */
+.page-logo-link { text-decoration: none; } /* Убрать подчеркивание у ссылки логотипа */
+.page-logo { font-size: 1.9em; font-weight: 700; color: var(--primary-color); } /* Стили логотипа */
+.page-logo span { color: var(--secondary-color); } /* Цвет для части логотипа */
+.header-user-controls { display: flex; align-items: center; } /* Контейнер для элементов управления пользователя */
+.header-user-controls .username { font-weight: 500; font-size: 0.95em; margin-right: 18px; color: var(--dark-text); } /* Стили имени пользователя */
+.button-logout { /* Стили кнопки выхода */
+    background-color: var(--accent-color); color: var(--white-color); border: none;
+    padding: 9px 16px; border-radius: var(--border-radius); cursor: pointer;
+    font-weight: 500; font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.button-logout:hover { background-color: #d35400; transform: translateY(-1px); } /* Стили кнопки выхода при наведении */
+
+/* Обертка для основного контента */
+.admin-content-wrapper {
+    width: 100%; /* Ширина 100% */
+    max-width: 1280px; /* Максимальная ширина */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+/* Стили карточки контента */
+.content-card {
+    background-color: var(--white-color); /* Цвет фона */
+    padding: 30px 35px; /* Внутренние отступы */
+    border-radius: var(--border-radius); /* Скругление углов */
+    box-shadow: var(--shadow-medium); /* Тень */
+    border-top: 4px solid var(--primary-color); /* Верхняя граница для акцента */
+}
+
+/* Общие стили для заголовков секций */
+.page-section-header {
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 30px; /* Внешний отступ снизу */
+    padding-bottom: 25px; /* Внутренний отступ снизу */
+    border-bottom: 1px solid var(--border-color); /* Нижняя граница */
+}
+
+.page-section-header h1 { /* Стили заголовка h1 в секции */
+    font-size: 2em; /* Размер шрифта */
+    font-weight: 700; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    margin: 0; /* Убрать внешние отступы */
+}
+
+/* Общие стили для кнопок действий */
+.button-action, .button-primary, .button-secondary {
+    padding: 12px 22px; /* Внутренние отступы */
+    border: none; /* Убрать границу */
+    border-radius: var(--border-radius); /* Скругление углов */
+    cursor: pointer; /* Курсор-указатель */
+    font-size: 0.98em; /* Размер шрифта */
+    font-weight: 500; /* Насыщенность шрифта */
+    text-decoration: none; /* Убрать подчеркивание */
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; /* Плавные переходы */
+    display: inline-flex; /* Встроенный flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    line-height: 1; /* Межстрочный интервал */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Тень */
+}
+.button-action:hover, .button-primary:hover, .button-secondary:hover { /* Стили кнопок при наведении */
+    transform: translateY(-2px); /* Сдвиг вверх */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Увеличенная тень */
+}
+
+.button-action .icon, .button-primary .icon, .button-secondary .icon { /* Стили иконок в кнопках */
+    margin-right: 10px; /* Внешний отступ справа */
+    font-size: 1.15em; /* Размер шрифта иконки */
+}
+
+.button-primary { /* Стили основной кнопки */
+    background-color: var(--secondary-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+}
+.button-primary:hover { /* Стили основной кнопки при наведении */
+    background-color: #2980b9; /* Измененный цвет фона */
+}
+
+/* Обертка для таблицы данных с возможностью горизонтальной прокрутки */
+.data-table-wrapper { overflow-x: auto; margin-bottom: 25px;}
+
+/* Общие стили для таблицы данных */
+.data-table {
+    width: 100%; /* Ширина 100% */
+    border-collapse: separate; /* Раздельные границы ячеек */
+    border-spacing: 0; /* Расстояние между ячейками */
+    border: 1px solid var(--border-color); /* Граница таблицы */
+    border-radius: var(--border-radius); /* Скругление углов */
+    overflow: hidden; /* Обрезка содержимого, выходящего за пределы */
+}
+
+.data-table th, /* Стили заголовков таблицы */
+.data-table td { /* Стили ячеек таблицы */
+    padding: 16px 18px; /* Внутренние отступы */
+    text-align: left; /* Выравнивание текста по левому краю */
+    font-size: 0.95em; /* Размер шрифта */
+    vertical-align: middle; /* Вертикальное выравнивание по центру */
+    border-bottom: 1px solid var(--border-color); /* Нижняя граница ячейки */
+}
+.data-table th { /* Дополнительные стили для заголовков таблицы */
+    background-color: var(--table-header-bg); /* Цвет фона */
+    color: var(--dark-text); /* Цвет текста */
+    font-weight: 600; /* Насыщенность шрифта */
+    text-transform: uppercase; /* Преобразование текста в верхний регистр */
+    letter-spacing: 0.6px; /* Межбуквенный интервал */
+    border-bottom-width: 2px; /* Толщина нижней границы */
+}
+.data-table td { /* Стили для обычных ячеек таблицы */
+    color: var(--light-text-desc); /* Цвет текста */
+}
+.data-table .group-name { /* Стили для ячейки с названием группы */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+}
+
+.data-table tbody tr { /* Стили строк тела таблицы */
+    transition: background-color 0.15s ease; /* Плавный переход цвета фона */
+}
+.data-table tbody tr:hover { /* Стили строк тела таблицы при наведении */
+    background-color: var(--table-hover-bg); /* Цвет фона при наведении */
+}
+.data-table tbody tr:last-child td { /* Убрать нижнюю границу у последней строки */
+    border-bottom: none;
+}
+
+.data-table .actions-column-header { text-align: right; padding-right: 20px; } /* Заголовок колонки действий */
+.data-table .actions-column { /* Колонка действий в таблице */
+    white-space: nowrap; /* Запрет переноса строк */
+    text-align: right; /* Выравнивание по правому краю */
+}
+
+.data-table .action-button { /* Кнопки действий в таблице */
+    padding: 8px 12px; /* Внутренние отступы */
+    font-size: 0.88em; /* Размер шрифта */
+    border-radius: var(--border-radius); /* Скругление углов */
+    margin-left: 8px; /* Внешний отступ слева */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: white; /* Цвет текста */
+    border:none; /* Убрать границу */
+    cursor: pointer; /* Курсор-указатель */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Тень */
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; /* Плавные переходы */
+    display:inline-flex; /* Для выравнивания иконки и текста */
+    align-items:center; /* Выравнивание по центру */
+}
+.data-table .action-button:hover { /* Кнопки действий в таблице при наведении */
+    transform: translateY(-2px) scale(1.05); /* Сдвиг и увеличение */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15); /* Увеличенная тень */
+}
+.data-table .action-button .icon { margin-right: 6px; font-size: 1em; } /* Иконка в кнопке действия */
+
+.data-table .edit-button { background-color: var(--success-color); } /* Кнопка редактирования */
+.data-table .edit-button:hover { background-color: #229954; } /* Кнопка редактирования при наведении */
+
+.data-table .delete-button { background-color: var(--danger-color); } /* Кнопка удаления */
+.data-table .delete-button:hover { background-color: #a93226; } /* Кнопка удаления при наведении */
+
+/* Сообщение для пустой таблицы */
+.empty-table-message {
+    text-align:center; /* Выравнивание по центру */
+    padding: 30px !important; /* Внутренние отступы (важно для переопределения) */
+    color: var(--light-text-desc); /* Цвет текста */
+    font-style: italic; /* Курсивный шрифт */
+}
+
+/* Действия в футере */
+.footer-actions { margin-top: 35px; text-align: left; }
+.button-secondary { /* Вторичная кнопка */
+    background-color: #6c757d; /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+}
+.button-secondary:hover { /* Вторичная кнопка при наведении */
+    background-color: #5a6268; /* Измененный цвет фона */
+}
+
+/* Стили для сообщений (успех, ошибка) */
+.message { padding: 15px 20px; margin-bottom: 20px; border-radius: var(--border-radius); font-weight: 500; border: 1px solid transparent; display: flex; align-items: center; }
+.message .icon { margin-right: 10px; } /* Иконка в сообщении */
+.success-message { background-color: #d1f7e8; color: #0d6a69; border-color: #a3e9d1; } /* Сообщение об успехе */
+.error-message { background-color: #fde2e2; color: #8c2f2f; border-color: #f7c1c1; } /* Сообщение об ошибке */
+
+/* Стили для форм внутри карточки контента */
+.content-card form {
+    margin-top: 20px; /* Внешний отступ сверху */
+}
+
+/* Группа элементов формы (метка + поле ввода) */
+.form-group {
+    margin-bottom: 25px; /* Внешний отступ снизу */
+}
+
+.form-group label { /* Метка поля ввода */
+    display: block; /* Блочный элемент */
+    margin-bottom: 10px; /* Внешний отступ снизу */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    font-size: 0.95em; /* Размер шрифта */
+}
+
+/* Общий класс для полей ввода, селектов, текстовых областей */
+.form-control {
+    width: 100%; /* Ширина 100% */
+    padding: 12px 15px; /* Внутренние отступы */
+    border: 1px solid var(--border-color); /* Граница */
+    border-radius: var(--border-radius); /* Скругление углов */
+    box-sizing: border-box; /* Расчет размеров блока */
+    font-size: 0.95em; /* Размер шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    background-color: var(--white-color); /* Явный цвет фона */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Плавные переходы */
+}
+
+.form-control:focus { /* Стили поля ввода при фокусе */
+    border-color: var(--secondary-color); /* Цвет границы */
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); /* Тень при фокусе */
+    outline: none; /* Убрать стандартный контур */
+}
+
+/* Кнопки формы */
+.form-actions {
+    margin-top: 30px; /* Внешний отступ сверху */
+    display: flex; /* Flex-контейнер */
+    gap: 15px; /* Расстояние между кнопками */
+}
+
+/* Кнопка отправки формы (использует стили .button-primary) */
+.button-submit {
+    /* Стили определены в .button-primary */
+}
+
+/* Кнопка отмены в форме (использует стили .button-secondary) */
+.button-cancel {
+    /* Стили определены в .button-secondary */
+}

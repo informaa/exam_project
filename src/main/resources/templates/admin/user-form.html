@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Управление пользователями</title>
+  <link rel="stylesheet" th:href="@{/css/admin-form-style.css}"> <style>
+  body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 25px; margin:0; }
+  .admin-page-header { width: 100%; max-width: 1280px; padding: 18px 30px; background-color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; box-sizing: border-box; border-bottom: 3px solid #3498db; }
+  .header-logo-title { display: flex; align-items: center; }
+  .page-logo-link { text-decoration: none; }
+  .page-logo { font-size: 1.9em; font-weight: 700; color: #2c3e50; }
+  .page-logo span { color: #3498db; }
+  .header-user-controls { display: flex; align-items: center; }
+  .header-user-controls .username { font-weight: 500; margin-right: 18px; }
+  .button-logout { background-color: #e67e22; color: white; border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.9em; }
+  .button-logout:hover { background-color: #d35400; }
+  .form-container { background-color: white; padding: 30px 35px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width:100%; max-width: 700px; border-top: 4px solid #2c3e50; }
+  .form-container h2 { font-size: 2em; font-weight: 700; color: #2c3e50; margin-bottom: 30px; text-align: center; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #34495e; }
+  .form-control { width: 100%; padding: 12px 15px; border: 1px solid #dee2e6; border-radius: 8px; box-sizing: border-box; font-size: 0.95em; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+  .form-control:focus { border-color: #3498db; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); outline: none; }
+  .form-text.text-muted { font-size: 0.85em; color: #6c757d; }
+  .button-submit, .button-cancel { padding: 12px 22px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.98em; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; line-height: 1; margin-top: 10px; }
+  .button-submit { background-color: #3498db; color: white; margin-right:10px; }
+  .button-submit:hover { background-color: #2980b9; }
+  .button-cancel { background-color: #6c757d; color: white; }
+  .button-cancel:hover { background-color: #5a6268; }
+  .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 8px; }
+  .alert-danger { color: #842029; background-color: #f8d7da; border-color: #f5c2c7; }
+</style>
+</head>
+<body>
+
+<header class="admin-page-header">
+  <div class="header-logo-title">
+    <a th:href="@{/admin}" class="page-logo-link"><span class="page-logo">Admin<span>Panel</span></span></a>
+  </div>
+  <div class="header-user-controls" sec:authorize="isAuthenticated()">
+    <span class="username" sec:authentication="principal.username">User</span>
+    <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 15px;">
+      <button type="submit" class="button-logout">Выйти</button>
+    </form>
+  </div>
+</header>
+
+<div class="form-container">
+  <h2 th:text="${user.id == null ? 'Создать нового пользователя' : 'Редактировать пользователя'}"></h2>
+
+  <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+  <form th:action="@{/admin/users/save}" th:object="${user}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <div class="form-group">
+      <label for="username">Логин:</label>
+      <input type="text" id="username" th:field="*{username}" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Пароль:</label>
+      <input type="password" id="password" th:field="*{password}" class="form-control" th:required="${user.id == null}" />
+      <small class="form-text text-muted" th:if="${user.id != null}">Оставьте пустым, чтобы не менять пароль при редактировании.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="fullName">Полное имя:</label>
+      <input type="text" id="fullName" th:field="*{fullName}" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+      <label for="role">Роль:</label>
+      <select id="role" th:field="*{role}" class="form-control" onchange="toggleGroupField(this.value)">
+        <option th:each="roleOpt : ${roles}" th:value="${roleOpt}" th:text="${roleOpt.displayName}"></option>
+      </select>
+    </div>
+
+    <div class="form-group" id="studentGroupField" style="display: none;">
+      <label for="studentGroup">Группа студента:</label>
+      <select id="studentGroup" name="groupId" class="form-control">
+        <option value="">-- Выберите группу --</option>
+        <option th:each="group : ${groups}"
+                th:value="${group.id}"
+                th:text="${group.name}"
+                th:selected="${user.studentGroup != null and user.studentGroup.id == group.id}"></option>
+      </select>
+    </div>
+
+    <button type="submit" class="button-submit">Сохранить</button>
+    <a th:href="@{/admin/users}" class="button-cancel">Отмена</a>
+  </form>
+</div>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  function toggleGroupField(role) {
+    var studentGroupField = document.getElementById('studentGroupField');
+    if (role === 'STUDENT') {
+      studentGroupField.style.display = 'block';
+      document.getElementById('studentGroup').setAttribute('required', 'required');
+    } else {
+      studentGroupField.style.display = 'none';
+      document.getElementById('studentGroup').removeAttribute('required');
+      document.getElementById('studentGroup').value = '';
+    }
+  }
+
+  window.onload = function() {
+    var currentRole = /*[[${user.role != null ? user.role.name() : ''}]]*/ null;
+    if (currentRole) {
+      toggleGroupField(currentRole);
+    } else {
+      // Если новый пользователь, проверяем выбранное значение в select
+      var roleSelect = document.getElementById('role');
+      if (roleSelect.value) {
+        toggleGroupField(roleSelect.value);
+      } else {
+        // По умолчанию для нового пользователя можно скрыть поле группы,
+        // или установить его видимость на основе первой опции роли.
+        studentGroupField.style.display = 'none';
+      }
+    }
+  };
+  /*]]>*/
+</script>
+</body>
+</html>

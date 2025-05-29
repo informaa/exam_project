@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Расписание</title>
+    <link rel="stylesheet" th:href="@{/css/schedule-view-style.css}"> </head>
+<body>
+
+<header class="page-header"> <div class="header-logo-title">
+        <span class="page-logo"><span>Расписание</span></span>
+    </a>
+</div>
+    <div class="header-user-controls" sec:authorize="isAuthenticated()">
+        <span class="username" sec:authentication="principal.username">User</span>
+        <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 15px;">
+            <button type="submit" class="button-logout">Выйти</button>
+        </form>
+    </div>
+</header>
+
+<div class="schedule-page-wrapper">
+
+    <nav class="filter-navigation-bar">
+        <form th:action="@{/schedule}" method="get" class="filters-form">
+            <select name="viewAcademicYear" onchange="this.form.submit()" class="form-control-filter">
+                <option th:each="year : ${allAcademicYears}" th:value="${year}" th:text="${year}" th:selected="${year == currentAcademicYear}"></option>
+            </select>
+            <select name="viewSemester" onchange="this.form.submit()" class="form-control-filter">
+                <option th:each="sem : ${allSemesters}" th:value="${sem}" th:text="${sem + ' семестр'}" th:selected="${sem == currentSemester}"></option>
+            </select>
+            <select name="viewWeek" onchange="this.form.submit()" class="form-control-filter">
+                <option th:each="wk : ${allWeeks}" th:value="${wk}" th:text="${wk + ' неделя'}" th:selected="${wk == currentWeek}"></option>
+            </select>
+            <select name="filterGroupId" onchange="this.form.submit()" class="form-control-filter" th:if="${isAdmin}">
+                <option value="">Все группы</option> <option th:each="group : ${allGroups}" th:value="${group.id}" th:text="${group.name}" th:selected="${currentGroupId != null and group.id == currentGroupId}"></option>
+            </select>
+            <button type="submit" class="filter-button">Фильтр</button>
+            <a th:href="@{/schedule}" class="reset-button">Сброс</a>
+        </form>
+        <div class="semester-dates-info" th:if="${semesterStartDateDisplay != null and semesterEndDateDisplay != null}">
+            <span>Начало семестра: <strong th:text="${semesterStartDateDisplay}"></strong></span>
+            <span>Конец семестра: <strong th:text="${semesterEndDateDisplay}"></strong></span>
+        </div>
+    </nav>
+
+    <main class="schedule-content-area">
+        <div class="schedule-week-navigation">
+            <a th:href="@{/schedule(viewAcademicYear=${currentAcademicYear}, viewSemester=${currentSemester}, viewWeek=${currentWeek - 1}, filterGroupId=${currentGroupId})}"
+               th:classappend="${currentWeek <= 1 ? 'disabled' : ''}" class="week-nav-button prev-week">
+                <span class="icon">⬅️</span> Пред.
+            </a>
+            <span class="current-week-display" th:text="${'Неделя ' + currentWeek + ': ' + weekDateRange}">26.05 - 01.06</span>
+            <a th:href="@{/schedule(viewAcademicYear=${currentAcademicYear}, viewSemester=${currentSemester}, viewWeek=${currentWeek + 1}, filterGroupId=${currentGroupId})}"
+               th:classappend="${currentWeek >= WEEKS_IN_SEMESTER ? 'disabled' : ''}" class="week-nav-button next-week">
+                След. <span class="icon">➡️</span>
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="message success-message">
+            <span class="icon">🎉 </span><span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="message error-message">
+            <span class="icon">❗ </span><span th:text="${errorMessage}"></span>
+        </div>
+
+        <h2 class="view-title-header" th:text="${viewTitle}" style="text-align: center; margin-bottom: 20px; font-size: 1.6em; color: var(--primary-color);"></h2>
+
+
+        <div class="schedule-grid-wrapper">
+            <table class="schedule-table">
+                <thead>
+                <tr>
+                    <th class="time-column-header">Время \ День</th>
+                    <th th:each="day : ${displayDaysOrder}" class="day-column-header">
+                        <span th:text="${day.getDisplayName(T(java.time.format.TextStyle).FULL, T(java.util.Locale).forLanguageTag('ru'))}"></span><br/>
+                        <span class="date-in-header" th:text="${weekDayDatesMap.get(day)}"></span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lessonNum : ${lessonNumbers}" th:if="${lessonStartTimes.containsKey(lessonNum)}">
+                    <td class="time-slot-cell">
+                        <strong th:text="${lessonNum + ' пара'}"></strong>
+                        <span class="lesson-time-display">
+                            <span th:text="${#temporals.format(lessonStartTimes.get(lessonNum), 'HH:mm')}"></span> -
+                            <span th:text="${#temporals.format(lessonStartTimes.get(lessonNum).plusMinutes(lessonDuration), 'HH:mm')}"></span>
+                        </span>
+                    </td>
+                    <td th:each="day : ${displayDaysOrder}" class="schedule-data-cell">
+                        <div th:with="lessonsForSlot=${scheduleByDayAndLesson != null and scheduleByDayAndLesson.get(day) != null ? scheduleByDayAndLesson.get(day).get(lessonNum) : null}">
+                            <div th:if="${lessonsForSlot != null and !lessonsForSlot.isEmpty()}" class="lessons-in-slot">
+                                <div th:each="entry : ${lessonsForSlot}" class="schedule-entry-item">
+                                    <strong th:text="${entry.subject.name}">Предмет</strong>
+                                    <span th:text="${'Ауд: ' + entry.room.roomNumber}">Ауд.</span>
+                                    <span th:if="${entry.subject.teacher != null}" th:text="${entry.subject.teacher.fullName}">Преподаватель</span>
+                                    <span th:if="${isAdmin and entry.group != null}" th:text="${'Гр: ' + entry.group.name}">Группа</span>
+                                </div>
+                            </div>
+                            <div th:if="${lessonsForSlot == null or lessonsForSlot.isEmpty()}" class="empty-slot-placeholder">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(lessonNumbers) or #lists.isEmpty(scheduleByDayAndLesson) and !errorMessage}">
+                    <td th:colspan="${#lists.size(displayDaysOrder) + 1}" class="empty-table-message" style="height: 200px;">
+                        Расписание для выбранного периода отсутствует или еще не сгенерировано.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

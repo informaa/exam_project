@@ -1,53 +1,55 @@
 package com.astanait.universityschedule.config;
 
-import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@Configuration // говорит Spring, что это класс с настройками
-@EnableWebSecurity // включает безопасность на основе Spring Security.
+@Configuration // Обозначает, что класс является конфигурационным
+@EnableWebSecurity // Включает поддержку Spring Security
 public class SecurityConfig {
 
-    @Bean // регистрирует метод как компонент Spring
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean //  метод создаёт цепочку фильтров безопасности
+    @Bean // Определяет бин для цепочки фильтров безопасности
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/schedule/new", "/schedule/edit/**", "/schedule/save", "/schedule/update", "/schedule/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/schedule/api/week-boundaries").authenticated()
+                .authorizeHttpRequests(authorize -> authorize // Настройка авторизации HTTP-запросов
+                        // Разрешение доступа к главной странице, странице входа и странице ошибок для всех
+                        .requestMatchers("/", "/login", "/error").permitAll()
+                        // Доступ к генерации расписания только для пользователей с ролью ADMIN
+                        .requestMatchers("/schedule/generate").hasRole("ADMIN")
+                        // Доступ к просмотру расписания для всех аутентифицированных пользователей
                         .requestMatchers("/schedule").authenticated()
-                        .requestMatchers("/exams/new", "/exams/edit/**", "/exams/save", "/exams/update", "/exams/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/exams", "/exams/export").authenticated()
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        // Доступ ко всем URL, начинающимся с /admin/, только для пользователей с ролью ADMIN
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login") // Указывает Spring Security, что /login - это путь к кастомной странице входа
-                        .loginProcessingUrl("/login") // URL, на который отправляется форма (POST)
-                        .defaultSuccessUrl("/schedule", true)
-                        .failureUrl("/login?error=true")
-                        .permitAll() // Разрешает доступ к самой loginPage и loginProcessingUrl
+                .formLogin(form -> form // Настройка формы входа
+                        .loginPage("/login") // Указание кастомной страницы входа
+                        .defaultSuccessUrl("/", true) // URL по умолчанию после успешного входа
+                        .permitAll() // Разрешение доступа к странице входа для всех
                 )
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
-                        .logoutSuccessUrl("/login?logout=true")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
+                .logout(logout -> logout // Настройка выхода из системы
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // URL для выхода
+                        .logoutSuccessUrl("/login?logout") // URL после успешного выхода
+                        .permitAll() // Разрешение доступа к функционалу выхода для всех
                 );
 
-        return http.build();
+        return http.build(); // Построение и возврат цепочки фильтров безопасности
+    }
+
+    @Bean // Определяет бин для кодировщика паролей
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // Использование BCrypt для хеширования паролей
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico");
     }
 }

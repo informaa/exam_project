@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление аудиториями</title>
+    <link rel="stylesheet" th:href="@{/css/admin-rooms-style.css}">
+</head>
+<body>
+
+<header class="admin-page-header">
+    <div class="header-logo-title">
+        <a th:href="@{/admin}" class="page-logo-link"><span class="page-logo">Admin<span>Panel</span></span></a>
+    </div>
+    <div class="header-user-controls" sec:authorize="isAuthenticated()">
+        <span class="username" sec:authentication="principal.username">User</span>
+        <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 15px;">
+            <button type="submit" class="button-logout">Выйти</button>
+        </form>
+    </div>
+</header>
+
+<main class="admin-content-wrapper">
+    <div class="content-card">
+        <div class="page-section-header">
+            <h1>Управление аудиториями</h1>
+            <a th:href="@{/admin/rooms/new}" class="button-primary">
+                <span class="icon"></span> Создать аудиторию
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="message success-message">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="message error-message">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Номер аудитории</th>
+                    <th>Вместимость</th>
+                    <th class="actions-column-header">Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="room : ${rooms}">
+                    <td data-label="ID" th:text="${room.id}"></td>
+                    <td data-label="Номер аудитории" class="room-number" th:text="${room.roomNumber}"></td>
+                    <td data-label="Вместимость" th:text="${room.capacity != null ? room.capacity : '—'}"></td>
+                    <td class="actions-column">
+                        <a th:href="@{/admin/rooms/edit/{id}(id=${room.id})}" class="action-button edit-button">
+                            <span class="icon"></span> Редакт.
+                        </a>
+                        <a th:href="@{/admin/rooms/delete/{id}(id=${room.id})}"
+                           class="action-button delete-button"
+                           onclick="return confirm('Вы уверены, что хотите удалить эту аудиторию?');">
+                            <span class="icon"></span> Удалить
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(rooms)}">
+                    <td colspan="4" class="empty-table-message">Аудитории не найдены.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-actions">
+            <a th:href="@{/admin}" class="button-secondary">
+                <span class="icon"></span> Вернуться в панель
+            </a>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,470 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+
+/* Корневые переменные для глобальных стилей */
+:root {
+    --primary-color: #2c3e50; /* Основной цвет (глубокий синий) */
+    --secondary-color: #4a69bd; /* Вторичный цвет (более насыщенный синий) */
+    --accent-color: #f39c12;   /* Акцентный цвет (яркий оранжевый/желтый) */
+    --success-color: #27ae60; /* Цвет успеха (зеленый) */
+    --danger-color: #c0392b;  /* Цвет опасности (красный) */
+
+    --light-bg: #eef2f7; /* Очень светлый фон страницы */
+    --white-color: #ffffff; /* Белый цвет */
+    --card-bg: var(--white-color); /* Фон карточек */
+    --dark-text: #34495e; /* Темный текст */
+    --medium-text: #5a6a78; /* Средний текст (для второстепенного) */
+    --light-text: #7f8c8d;   /* Светлый текст (для подсказок) */
+    --border-color: #dce4ec; /* Цвет границы (более мягкий) */
+    --input-border-color: #ced4da; /* Цвет границы поля ввода */
+    --input-focus-border-color: var(--secondary-color); /* Цвет границы поля ввода при фокусе */
+    --input-focus-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.25); /* Тень поля ввода при фокусе */
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03); /* Очень маленькая тень */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04); /* Маленькая тень */
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.05); /* Средняя тень */
+    --shadow-lg: 0 10px 20px rgba(0,0,0,0.07); /* Большая тень */
+
+    --border-radius-sm: 6px; /* Маленький радиус скругления */
+    --border-radius-md: 10px; /* Средний радиус скругления */
+    --border-radius-lg: 12px; /* Большой радиус скругления */
+
+    --font-primary: 'Manrope', 'Inter', sans-serif; /* Основной шрифт */
+}
+
+/* Базовые стили для body */
+body {
+    font-family: var(--font-primary); /* Установка основного шрифта */
+    margin: 0; /* Убрать внешние отступы */
+    background-color: var(--light-bg); /* Цвет фона */
+    color: var(--dark-text); /* Цвет текста */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    align-items: center; /* Выравнивание по центру */
+    padding: 30px 20px; /* Внутренние отступы (увеличен вертикальный) */
+    min-height: 100vh; /* Минимальная высота */
+    font-size: 15px; /* Базовый размер шрифта */
+    line-height: 1.65; /* Межстрочный интервал для лучшей читаемости */
+    box-sizing: border-box; /* Расчет размеров блока */
+    -webkit-font-smoothing: antialiased; /* Сглаживание шрифтов в WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Сглаживание шрифтов в Mozilla */
+}
+
+/* Стили хедера страницы */
+.admin-page-header {
+    width: 100%; /* Ширина 100% */
+    max-width: 1100px; /* Максимальная ширина */
+    padding: 20px 30px; /* Внутренние отступы */
+    background-color: var(--white-color); /* Цвет фона */
+    box-shadow: var(--shadow-md); /* Тень */
+    border-radius: var(--border-radius-lg); /* Скругление углов */
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 40px; /* Внешний отступ снизу */
+    box-sizing: border-box; /* Расчет размеров блока */
+    border-bottom: 4px solid var(--secondary-color); /* Нижняя граница */
+}
+.header-logo-title { display: flex; align-items: center; } /* Контейнер для логотипа и заголовка */
+.page-logo-link { text-decoration: none; } /* Убрать подчеркивание у ссылки логотипа */
+.page-logo { font-size: 2em; font-weight: 700; color: var(--primary-color); } /* Стили логотипа */
+.page-logo span { color: var(--secondary-color); } /* Цвет для части логотипа */
+.header-user-controls { display: flex; align-items: center; } /* Контейнер для элементов управления пользователя */
+.header-user-controls .username { font-weight: 600; font-size: 1em; margin-right: 20px; color: var(--dark-text); } /* Стили имени пользователя */
+.button-logout { /* Стили кнопки выхода */
+    background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color);
+    padding: 8px 15px; border-radius: var(--border-radius-sm); cursor: pointer;
+    font-weight: 600; font-size: 0.9em; transition: all 0.2s ease;
+}
+.button-logout:hover { background-color: var(--accent-color); color: var(--white-color); transform: translateY(-1px); } /* Стили кнопки выхода при наведении */
+
+/* Обертка для основного контента */
+.admin-content-wrapper {
+    width: 100%; /* Ширина 100% */
+    max-width: 1100px; /* Максимальная ширина, соответствует хедеру */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+/* Основная карточка для контента (например, формы) */
+.content-card {
+    background-color: var(--card-bg); /* Цвет фона */
+    padding: 35px 40px; /* Внутренние отступы */
+    border-radius: var(--border-radius-lg); /* Скругление углов */
+    box-shadow: var(--shadow-lg); /* Тень */
+}
+
+/* Заголовок секции на странице */
+.page-section-header {
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 35px; /* Внешний отступ снизу */
+    padding-bottom: 20px; /* Внутренний отступ снизу */
+    border-bottom: 1px solid var(--border-color); /* Нижняя граница */
+}
+.page-section-header h1 { /* Стили заголовка h1 в секции */
+    font-size: 2.2em; /* Размер шрифта */
+    font-weight: 700; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    margin: 0; /* Убрать внешние отступы */
+    letter-spacing: -0.5px; /* Межбуквенный интервал */
+}
+
+/* Карточка для шага/секции формы */
+.form-step-card {
+    background-color: var(--white-color); /* Цвет фона */
+    padding: 25px 30px; /* Внутренние отступы */
+    border-radius: var(--border-radius-md); /* Скругление углов */
+    margin-bottom: 30px; /* Внешний отступ снизу */
+    border: 1px solid var(--border-color); /* Граница */
+    box-shadow: var(--shadow-sm); /* Тень */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Плавные переходы */
+}
+.form-step-card:hover { /* Эффекты при наведении на карточку шага формы (закомментированы) */
+    /* box-shadow: var(--shadow-md); */
+    /* transform: translateY(-2px); */
+}
+
+
+.form-step-card h3 { /* Заголовок h3 внутри карточки шага формы */
+    font-size: 1.4em; /* Размер шрифта */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--secondary-color); /* Цвет текста (акцентный) */
+    margin-top: 0; /* Убрать верхний отступ */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+    padding-bottom: 15px; /* Внутренний отступ снизу */
+    border-bottom: 1px dashed var(--border-color); /* Пунктирная нижняя граница */
+    display: flex; /* Flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+}
+.form-step-card h3 .icon { /* Иконка в заголовке h3 */
+    margin-right: 12px; /* Внешний отступ справа */
+    font-size: 1.2em; /* Размер шрифта */
+    opacity: 0.8; /* Прозрачность */
+}
+
+
+/* Группа элементов формы (метка + поле ввода) */
+.form-group {
+    margin-bottom: 22px; /* Внешний отступ снизу */
+}
+.form-group label { /* Метка поля ввода */
+    display: block; /* Блочный элемент */
+    margin-bottom: 10px; /* Внешний отступ снизу */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    font-size: 1em; /* Размер шрифта */
+}
+.form-group label.checkbox-label { /* Метка для чекбокса */
+    display: flex; /* Flex-контейнер для выравнивания */
+    align-items: center; /* Выравнивание по центру */
+    font-weight: 400; /* Обычная насыщенность шрифта */
+    font-size: 0.95em; /* Размер шрифта */
+    color: var(--medium-text); /* Цвет текста */
+    cursor: pointer; /* Курсор-указатель */
+    transition: color 0.2s ease; /* Плавный переход цвета */
+}
+.form-group label.checkbox-label:hover { /* Метка чекбокса при наведении */
+    color: var(--dark-text); /* Изменение цвета текста */
+}
+
+
+/* Кастомные стили для чекбоксов */
+input[type="checkbox"] {
+    appearance: none; /* Убрать стандартный вид */
+    -webkit-appearance: none; /* Для Safari/Chrome */
+    -moz-appearance: none; /* Для Firefox */
+    width: 20px; /* Ширина */
+    height: 20px; /* Высота */
+    border: 2px solid var(--input-border-color); /* Граница */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    margin-right: 10px; /* Внешний отступ справа */
+    cursor: pointer; /* Курсор-указатель */
+    vertical-align: middle; /* Вертикальное выравнивание */
+    position: relative; /* Для позиционирования псевдоэлемента */
+    top: -1px; /* Небольшой сдвиг вверх */
+    transition: background-color 0.2s ease, border-color 0.2s ease; /* Плавные переходы */
+}
+input[type="checkbox"]:checked { /* Чекбокс в выбранном состоянии */
+    background-color: var(--secondary-color); /* Цвет фона */
+    border-color: var(--secondary-color); /* Цвет границы */
+}
+input[type="checkbox"]:checked::before { /* Псевдоэлемент для "галочки" */
+    content: '✔'; /* Символ галочки */
+    display: block; /* Блочный элемент */
+    color: var(--white-color); /* Цвет галочки */
+    font-size: 14px; /* Размер шрифта галочки */
+    font-weight: bold; /* Насыщенность шрифта галочки */
+    text-align: center; /* Выравнивание по центру */
+    line-height: 18px; /* Межстрочный интервал для выравнивания галочки */
+}
+input[type="checkbox"]:focus { /* Чекбокс при фокусе */
+    outline: none; /* Убрать стандартный контур */
+    box-shadow: var(--input-focus-shadow); /* Тень при фокусе */
+}
+
+
+/* Общие стили для полей ввода и select */
+.form-control, select.form-control {
+    width: 100%; /* Ширина 100% */
+    padding: 12px 16px; /* Внутренние отступы */
+    border: 1px solid var(--input-border-color); /* Граница */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    box-sizing: border-box; /* Расчет размеров блока */
+    font-size: 1em; /* Размер шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    background-color: var(--white-color); /* Цвет фона */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Плавные переходы */
+    font-family: var(--font-primary); /* Шрифт */
+}
+.form-control:focus, select.form-control:focus { /* Поле ввода/select при фокусе */
+    border-color: var(--input-focus-border-color); /* Цвет границы */
+    box-shadow: var(--input-focus-shadow); /* Тень */
+    outline: none; /* Убрать стандартный контур */
+}
+select.form-control { /* Стили для select, включая кастомную стрелку */
+    appearance: none; /* Убрать стандартную стрелку */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E"); /* Кастомная SVG стрелка */
+    background-repeat: no-repeat; /* Не повторять фон */
+    background-position: right 1rem center; /* Позиция стрелки */
+    background-size: 1em; /* Размер стрелки */
+    padding-right: 2.5rem; /* Место для стрелки */
+}
+
+
+/* Группа чекбоксов */
+.checkbox-group {
+    display: grid; /* Grid-контейнер */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Адаптивные колонки */
+    gap: 15px; /* Расстояние между элементами */
+    padding-top: 5px; /* Внутренний отступ сверху */
+}
+
+/* Стили для select выбора предметов (с множественным выбором) */
+.subject-select {
+    min-height: 200px; /* Минимальная высота */
+    font-size: 0.95em; /* Размер шрифта */
+}
+.subject-select option { /* Опции в select */
+    padding: 8px 10px; /* Внутренние отступы */
+}
+.subject-select option:checked { /* Выбранная опция */
+    background-color: var(--secondary-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+}
+
+
+/* Таблица расписания звонков */
+.bell-schedule-table {
+    width: 100%; /* Ширина 100% */
+    max-width: 400px; /* Максимальная ширина */
+    margin-top: 15px; /* Внешний отступ сверху */
+    font-size: 0.9em; /* Размер шрифта */
+    border: 1px solid var(--border-color); /* Граница */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    overflow: hidden; /* Обрезка содержимого */
+    border-collapse: separate; /* Раздельные границы ячеек */
+    border-spacing: 0; /* Расстояние между ячейками */
+}
+.bell-schedule-table th, .bell-schedule-table td { /* Ячейки и заголовки таблицы звонков */
+    padding: 10px 14px; /* Внутренние отступы */
+    border-bottom: 1px solid var(--border-color); /* Нижняя граница */
+    text-align: left; /* Выравнивание текста по левому краю */
+}
+.bell-schedule-table tr:last-child td { border-bottom: none; } /* Убрать границу у последней строки */
+.bell-schedule-table th { /* Заголовки таблицы звонков */
+    background-color: var(--table-header-bg); /* Цвет фона (должен быть определен или заменен) */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--dark-text); /* Цвет текста */
+}
+
+/* Контейнер для кнопок действий формы */
+.form-actions {
+    margin-top: 40px; /* Внешний отступ сверху */
+    display: flex; /* Flex-контейнер */
+    gap: 20px; /* Расстояние между кнопками */
+    justify-content: flex-start; /* Выравнивание по левому краю */
+    padding-top: 20px; /* Внутренний отступ сверху */
+    border-top: 1px solid var(--border-color); /* Верхняя граница */
+}
+
+/* Общие стили для основной и вторичной кнопок */
+.button-primary, .button-secondary {
+    padding: 14px 28px; /* Внутренние отступы (кнопки крупнее) */
+    border: none; /* Убрать границу */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    cursor: pointer; /* Курсор-указатель */
+    font-size: 1.05em; /* Размер шрифта (крупнее) */
+    font-weight: 600; /* Насыщенность шрифта (жирнее) */
+    text-decoration: none; /* Убрать подчеркивание */
+    transition: all 0.25s ease; /* Плавные переходы */
+    display: inline-flex; /* Встроенный flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    line-height: 1; /* Межстрочный интервал */
+    box-shadow: var(--shadow-sm); /* Тень */
+}
+.button-primary:hover, .button-secondary:hover { /* Кнопки при наведении */
+    transform: translateY(-3px); /* Эффект приподнятия */
+    box-shadow: var(--shadow-md); /* Увеличенная тень */
+}
+.button-primary .icon, .button-secondary .icon { /* Иконки в кнопках */
+    margin-right: 12px; /* Внешний отступ справа */
+    font-size: 1.2em; /* Размер шрифта иконки */
+}
+
+.button-primary { /* Основная кнопка (например, "Сгенерировать") */
+    background: linear-gradient(135deg, var(--success-color) 0%, #1e8449 100%); /* Градиентный фон */
+    color: var(--white-color); /* Цвет текста */
+}
+.button-primary:hover { /* Основная кнопка при наведении */
+    background: linear-gradient(135deg, #1e8449 0%, var(--success-color) 100%); /* Измененный градиент */
+}
+
+.button-secondary { /* Вторичная кнопка (например, "Вернуться") */
+    background-color: var(--medium-text); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+}
+.button-secondary:hover { /* Вторичная кнопка при наведении */
+    background-color: var(--dark-text); /* Измененный цвет фона */
+}
+
+/* Стили для сообщений (успех, ошибка) */
+.message {
+    padding: 15px 20px; margin-bottom: 25px; border-radius: var(--border-radius-sm); /* Отступы, скругление */
+    font-weight: 500; border-left-width: 4px; border-left-style: solid; /* Шрифт, левая граница */
+    display: flex; align-items: center; box-shadow: var(--shadow-xs); /* Flex, выравнивание, тень */
+}
+.success-message { /* Сообщение об успехе */
+    background-color: #e6f7f0; color: #107c41; border-left-color: var(--success-color);
+}
+.error-message { /* Сообщение об ошибке */
+    background-color: #fdecea; color: #a5282a; border-left-color: var(--danger-color);
+}
+
+
+/* Сетка для выбора предметов карточками */
+.subject-selection-grid {
+    display: grid; /* Grid-контейнер */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Адаптивные колонки */
+    gap: 20px; /* Расстояние между карточками */
+    margin-top: 15px; /* Внешний отступ сверху */
+}
+
+/* Карточка предмета */
+.subject-card {
+    background-color: var(--white-color); /* Цвет фона */
+    border: 2px solid var(--input-border-color); /* Граница */
+    border-radius: var(--border-radius-md); /* Скругление углов */
+    padding: 20px; /* Внутренние отступы */
+    cursor: pointer; /* Курсор-указатель */
+    transition: all 0.25s ease-in-out; /* Плавные переходы */
+    position: relative; /* Для позиционирования псевдоэлементов/оверлеев */
+    box-shadow: var(--shadow-xs); /* Тень */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+}
+
+.subject-card:hover { /* Карточка предмета при наведении */
+    border-color: var(--secondary-color); /* Изменение цвета границы */
+    box-shadow: var(--shadow-md); /* Увеличенная тень */
+    transform: translateY(-3px); /* Эффект приподнятия */
+}
+
+.subject-card-checkbox { /* Скрытый стандартный чекбокс внутри карточки */
+    display: none;
+}
+
+.subject-card-content { /* Контентная часть карточки предмета */
+    flex-grow: 1; /* Растягивается, чтобы занять доступное пространство */
+}
+
+.subject-card-name { /* Название предмета в карточке */
+    font-size: 1.15em; /* Размер шрифта */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    margin-bottom: 8px; /* Внешний отступ снизу */
+}
+
+.subject-card-teacher { /* Имя преподавателя в карточке предмета */
+    font-size: 0.88em; /* Размер шрифта */
+    color: var(--medium-text); /* Цвет текста */
+    margin-bottom: 10px; /* Внешний отступ снизу */
+    min-height: 1.2em; /* Минимальная высота для выравнивания карточек */
+}
+
+.subject-card-teacher.no-teacher-text { /* Текст, если преподаватель не назначен */
+    color: var(--danger-color); /* Цвет текста (опасность) */
+    font-weight: 500; /* Насыщенность шрифта */
+}
+.subject-card.no-teacher-warning { /* Стиль карточки, если преподаватель не назначен */
+    border-left: 5px solid var(--danger-color); /* Левая граница для визуального предупреждения */
+}
+
+
+.subject-card-credits { /* Количество кредитов/часов в карточке предмета */
+    font-size: 0.85em; /* Размер шрифта */
+    color: var(--light-text); /* Цвет текста */
+    display: block; /* Блочный элемент */
+    margin-top: auto; /* Прижимает к низу карточки */
+}
+
+/* Стилизация для "выбранной" карточки - оверлей галочки */
+.subject-card-checkbox:checked + .subject-card-content + .subject-card-checkmark-overlay {
+    opacity: 1; /* Показать оверлей */
+    transform: scale(1); /* Вернуть нормальный размер */
+}
+
+/* Стилизация для текста внутри выбранной карточки (закомментировано) */
+.subject-card-checkbox:checked + .subject-card-content {
+    /* Можно добавить стили здесь */
+}
+
+/* Изменение цвета заголовка у выбранной карточки (закомментировано) */
+.subject-card-checkbox:checked ~ .subject-card-content h4 {
+    /* color: var(--secondary-color); */
+}
+/* Красный фон для галочки у предмета без преподавателя */
+label.subject-card.no-teacher-warning input.subject-card-checkbox:checked + div.subject-card-content + span.subject-card-checkmark-overlay{
+    background-color: rgba(220, 53, 69, 0.7);
+}
+
+
+/* Стили для скрытого input:checked (невидимы, но нужны для :checked) */
+label.subject-card input.subject-card-checkbox:checked {
+    /* Стили здесь не будут видны */
+}
+
+/* Оверлей с галочкой для выбранной карточки */
+.subject-card-checkmark-overlay {
+    position: absolute; /* Абсолютное позиционирование */
+    top: 0; left: 0; right: 0; bottom: 0; /* Растянуть на всю карточку */
+    background-color: rgba(74, 105, 189, 0.7); /* Полупрозрачный фон */
+    border-radius: calc(var(--border-radius-md) - 2px); /* Скругление (чуть меньше карточки) */
+    display: flex; /* Flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    justify-content: center; /* Выравнивание по центру */
+    opacity: 0; /* Скрыто по умолчанию */
+    transform: scale(0.8); /* Уменьшено по умолчанию */
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out; /* Плавные переходы */
+    pointer-events: none; /* Чтобы клики проходили на карточку */
+}
+
+.checkmark-icon { /* Иконка галочки */
+    color: var(--white-color); /* Цвет */
+    font-size: 2.5em; /* Размер */
+    font-weight: bold; /* Насыщенность */
+}
+
+/* Принудительное отображение оверлея для выбранной карточки */
+input.subject-card-checkbox:checked + .subject-card-content + .subject-card-checkmark-overlay {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Стиль для label (обертки карточки), когда внутренний чекбокс выбран */
+label.subject-card:has(input.subject-card-checkbox:checked) {
+    border-color: var(--secondary-color); /* Изменение цвета границы */
+    box-shadow: 0 0 15px rgba(74, 105, 189, 0.3); /* Тень */
+    transform: translateY(0); /* Убрать эффект смещения при наведении, если он есть */
+}

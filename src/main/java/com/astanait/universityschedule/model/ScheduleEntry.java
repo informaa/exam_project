@@ -1,50 +1,74 @@
 package com.astanait.universityschedule.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+
+import java.time.DayOfWeek;
+import java.util.Objects;
 
 @Entity
-@Table(name = "schedule_entries")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-// Класс `ScheduleEntry` описывает одну запись расписания, например, одно занятие
 public class ScheduleEntry {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String subjectName;
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
 
-    @Column(length = 100)
-    private String teacherName;
+    private int lessonNumber;
 
-    @Column(length = 50)
-    private String room;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "group_id")
+    private Group group;
 
-    @Column(nullable = false)
-    private LocalDateTime startTime;
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 
-    @Column(nullable = false)
-    private LocalDateTime endTime;
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
 
-    @Column(length = 10, nullable = false)
     private String academicYear;
+    private int semester;
+    private int weekInSemester;
 
-    @Column(nullable = false)
-    private Integer semester;
+    public ScheduleEntry() {}
 
-    @Column(nullable = false)
-    private Integer weekNumber;
+    public ScheduleEntry(DayOfWeek dayOfWeek, int lessonNumber, Group group, Subject subject, Room room,
+                         String academicYear, int semester, int weekInSemester) {
+        this.dayOfWeek = dayOfWeek;
+        this.lessonNumber = lessonNumber;
+        this.group = group;
+        this.subject = subject;
+        this.room = room;
+        this.academicYear = academicYear;
+        this.semester = semester;
+        this.weekInSemester = weekInSemester;
+    }
 
-    @Column(name = "group_name", length = 50, nullable = false)
-    private String groupName;
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public DayOfWeek getDayOfWeek() { return dayOfWeek; }
+    public int getLessonNumber() { return lessonNumber; }
+    public Group getGroup() { return group; }
+    public void setGroup(Group group) { this.group = group; }
+    public Subject getSubject() { return subject; }
+    public void setSubject(Subject subject) { this.subject = subject; }
+    public Room getRoom() { return room; }
+    public void setRoom(Room room) { this.room = room; }
 
-    @Column(name = "subject_type", length = 30, nullable = false)
-    private String subjectType;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScheduleEntry that = (ScheduleEntry) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

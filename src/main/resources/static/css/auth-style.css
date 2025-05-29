@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* Корневые переменные для глобальных стилей */
+:root {
+    --primary-color: #2c3e50;  /* Основной цвет (глубокий синий) */
+    --secondary-color: #4a69bd; /* Вторичный цвет (более насыщенный синий) */
+    --accent-color: #e67e22;   /* Акцентный цвет (оранжевый) */
+    --light-bg: #eef2f7; /* Очень светлый фон страницы */
+    --white-color: #ffffff; /* Белый цвет */
+    --card-bg: var(--white-color); /* Фон карточек (использует белый цвет) */
+    --dark-text: #34495e; /* Темный текст */
+    --medium-text: #525f7f; /* Средний по тону текст */
+    --light-text: #8898aa; /* Светлый текст */
+    --border-color: #dce4ec; /* Цвет границ */
+    --input-border-color: #ced4da; /* Цвет границ полей ввода */
+    --input-focus-border-color: var(--secondary-color); /* Цвет границ полей ввода при фокусе */
+    --input-focus-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.2); /* Тень полей ввода при фокусе */
+    --danger-color: #c0392b; /* Цвет для сообщений об опасности/ошибке */
+    --danger-bg: #fdecea; /* Фон для сообщений об опасности/ошибке */
+    --success-color: #27ae60; /* Цвет для сообщений об успехе */
+    --success-bg: #e6f7f0; /* Фон для сообщений об успехе */
+
+
+    --shadow-md: 0 6px 15px rgba(0,0,0,0.08); /* Средняя тень */
+    --border-radius-md: 10px; /* Средний радиус скругления границ */
+    --font-primary: 'Manrope', 'Inter', sans-serif; /* Основной шрифт */
+}
+
+/* Базовые стили для body */
+body {
+    font-family: var(--font-primary); /* Основной шрифт */
+    margin: 0; /* Убрать внешние отступы */
+    background-color: var(--light-bg); /* Цвет фона */
+    color: var(--dark-text); /* Цвет текста */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    align-items: center; /* Выравнивание по горизонтали по центру */
+    justify-content: center; /* Выравнивание по вертикали по центру */
+    padding: 20px; /* Внутренние отступы */
+    min-height: 100vh; /* Минимальная высота */
+    font-size: 15px; /* Размер шрифта */
+    line-height: 1.6; /* Межстрочный интервал */
+    box-sizing: border-box; /* Расчет размеров блока */
+    -webkit-font-smoothing: antialiased; /* Сглаживание шрифтов в WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Сглаживание шрифтов в Mozilla */
+}
+
+/* Контейнер для форм аутентификации (вход/регистрация) */
+.auth-container {
+    width: 100%; /* Ширина 100% */
+    max-width: 420px; /* Максимальная ширина */
+    background-color: var(--card-bg); /* Цвет фона */
+    padding: 35px 40px; /* Внутренние отступы */
+    border-radius: var(--border-radius-md); /* Скругление углов */
+    box-shadow: var(--shadow-md); /* Тень */
+    text-align: center; /* Выравнивание текста по центру */
+    border-top: 4px solid var(--secondary-color); /* Верхняя акцентная линия */
+}
+
+/* Заголовок в блоке аутентификации */
+.auth-header {
+    margin-bottom: 25px; /* Внешний отступ снизу */
+}
+
+/* Логотип приложения */
+.app-logo {
+    font-size: 2.2em; /* Размер шрифта */
+    font-weight: 700; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    text-decoration: none; /* Убрать подчеркивание */
+    display: inline-block; /* Для корректной работы margin */
+    margin-bottom: 10px; /* Внешний отступ снизу */
+}
+.app-logo span { /* Часть логотипа для выделения цветом */
+    color: var(--secondary-color);
+}
+
+/* Заголовок h2 внутри контейнера аутентификации */
+.auth-container h2 {
+    font-size: 1.6em; /* Размер шрифта */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    margin-top: 0; /* Убрать верхний отступ */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+}
+
+/* Группа элементов формы (метка + поле ввода) */
+.form-group {
+    margin-bottom: 20px; /* Внешний отступ снизу */
+    text-align: left; /* Выравнивание текста внутри группы по левому краю */
+}
+
+/* Метка поля ввода */
+.form-group label {
+    display: block; /* Блочный элемент */
+    margin-bottom: 8px; /* Внешний отступ снизу */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    font-size: 0.95em; /* Размер шрифта */
+}
+
+/* Общий стиль для полей ввода */
+.form-control {
+    width: 100%; /* Ширина 100% */
+    padding: 12px 15px; /* Внутренние отступы */
+    border: 1px solid var(--input-border-color); /* Граница */
+    border-radius: var(--border-radius-sm); /* Скругление углов (переменная не определена, предполагается меньший радиус) */
+    box-sizing: border-box; /* Расчет размеров блока */
+    font-size: 1em; /* Размер шрифта */
+    color: var(--dark-text); /* Цвет текста */
+    background-color: var(--white-color); /* Цвет фона */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Плавные переходы */
+    font-family: var(--font-primary); /* Основной шрифт */
+}
+
+/* Поле ввода при фокусе */
+.form-control:focus {
+    border-color: var(--input-focus-border-color); /* Цвет границы */
+    box-shadow: var(--input-focus-shadow); /* Тень */
+    outline: none; /* Убрать стандартный контур */
+}
+
+/* Основная кнопка в формах аутентификации */
+.button-auth-primary {
+    width: 100%; /* Ширина 100% */
+    padding: 12px 20px; /* Внутренние отступы */
+    border: none; /* Убрать границу */
+    border-radius: var(--border-radius-sm); /* Скругление углов (переменная не определена) */
+    background-color: var(--secondary-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+    font-size: 1.05em; /* Размер шрифта */
+    font-weight: 600; /* Насыщенность шрифта */
+    cursor: pointer; /* Курсор-указатель */
+    transition: background-color 0.2s ease, transform 0.15s ease; /* Плавные переходы */
+    margin-top: 10px; /* Внешний отступ сверху */
+    box-shadow: var(--shadow-xs); /* Легкая тень (переменная не определена) */
+}
+
+/* Основная кнопка в формах аутентификации при наведении */
+.button-auth-primary:hover {
+    background-color: #3c57a0; /* Измененный цвет фона (темнее синий) */
+    transform: translateY(-2px); /* Сдвиг вверх */
+    box-shadow: var(--shadow-sm); /* Тень (переменная не определена) */
+}
+
+/* Ссылки в блоке аутентификации (например, "Забыли пароль?", "Регистрация") */
+.auth-link {
+    margin-top: 25px; /* Внешний отступ сверху */
+    font-size: 0.9em; /* Размер шрифта */
+    color: var(--medium-text); /* Цвет текста */
+}
+
+.auth-link a { /* Ссылка внутри блока .auth-link */
+    color: var(--secondary-color); /* Цвет текста */
+    text-decoration: none; /* Убрать подчеркивание */
+    font-weight: 600; /* Насыщенность шрифта */
+}
+
+.auth-link a:hover { /* Ссылка при наведении */
+    text-decoration: underline; /* Добавить подчеркивание */
+}
+
+/* Общие стили для сообщений (ошибка/успех) */
+.message {
+    padding: 12px 18px; /* Внутренние отступы */
+    margin-bottom: 20px; /* Внешний отступ снизу */
+    border-radius: var(--border-radius-sm); /* Скругление углов (переменная не определена) */
+    font-weight: 500; /* Насыщенность шрифта */
+    border-left-width: 4px; /* Толщина левой границы */
+    border-left-style: solid; /* Стиль левой границы */
+    text-align: left; /* Выравнивание текста по левому краю */
+    font-size: 0.9em; /* Размер шрифта */
+}
+
+/* Сообщение об ошибке */
+.error-message {
+    background-color: var(--danger-bg); /* Цвет фона */
+    color: var(--danger-color); /* Цвет текста */
+    border-left-color: var(--danger-color); /* Цвет левой границы */
+}
+
+/* Сообщение об успехе */
+.success-message {
+    background-color: var(--success-bg); /* Цвет фона */
+    color: var(--success-color); /* Цвет текста */
+    border-left-color: var(--success-color); /* Цвет левой границы */
+}

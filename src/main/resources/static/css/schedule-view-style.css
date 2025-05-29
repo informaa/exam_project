@@ -1,0 +1,334 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* Корневые переменные для глобальных стилей */
+:root {
+    --primary-color: #2c3e50; /* Основной цвет */
+    --secondary-color: #4a69bd; /* Вторичный цвет (приглушенный синий) */
+    --accent-color: #e67e22; /* Акцентный цвет */
+    --success-color: #27ae60; /* Цвет успеха */
+    --danger-color: #c0392b; /* Цвет опасности */
+
+    --page-bg: #e9edf2; /* Фон страницы */
+    --white-color: #ffffff; /* Белый цвет */
+    --card-bg: var(--white-color); /* Фон для карточек */
+
+    --header-bg: var(--white-color); /* Фон хедера */
+    --filter-bar-bg: var(--white-color); /* Фон панели фильтров */
+    --week-nav-bg: var(--white-color);   /* Фон навигации по неделям */
+
+
+    --dark-text: #34495e; /* Темный текст */
+    --medium-text: #525f7f; /* Средний текст */
+    --light-text: #8898aa; /* Светлый текст */
+    --border-color: #d8dfe6; /* Цвет границы */
+    --table-border-color: #cbd2d9; /* Цвет границы таблицы */
+    --input-border-color: #b0bac5; /* Цвет границы поля ввода */
+    --input-focus-border-color: var(--secondary-color); /* Цвет границы поля ввода в фокусе */
+    --input-focus-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.2); /* Тень поля ввода в фокусе */
+
+    --shadow-xs: 0 1px 3px rgba(0,0,0,0.04); /* Очень маленькая тень */
+    --shadow-sm: 0 3px 6px rgba(0,0,0,0.05); /* Маленькая тень */
+    --shadow-md: 0 6px 12px rgba(0,0,0,0.07); /* Средняя тень */
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.08); /* Большая тень */
+
+    --border-radius-sm: 6px; /* Малый радиус скругления */
+    --border-radius-md: 10px; /* Средний радиус скругления */
+    --border-radius-lg: 12px; /* Большой радиус скругления */
+
+    --font-primary: 'Manrope', 'Inter', sans-serif; /* Основной шрифт */
+}
+
+/* Базовые стили для body */
+body {
+    font-family: var(--font-primary); /* Шрифт */
+    margin: 0; /* Убрать внешние отступы */
+    background-color: var(--page-bg); /* Цвет фона страницы */
+    color: var(--dark-text); /* Цвет текста */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    align-items: center; /* Выравнивание по центру */
+    padding: 25px 15px; /* Внутренние отступы */
+    min-height: 100vh; /* Минимальная высота */
+    font-size: 14px; /* Размер шрифта */
+    line-height: 1.6; /* Межстрочный интервал */
+    box-sizing: border-box; /* Расчет размеров блока */
+    -webkit-font-smoothing: antialiased; /* Сглаживание шрифтов в WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Сглаживание шрифтов в Mozilla */
+}
+
+/* Стили хедера страницы */
+.page-header {
+    width: 100%; /* Ширина 100% */
+    max-width: 100%; /* Максимальная ширина 100% */
+    padding: 15px 25px; /* Внутренние отступы */
+    background-color: var(--header-bg); /* Цвет фона */
+    box-shadow: var(--shadow-md); /* Тень */
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+    box-sizing: border-box; /* Расчет размеров блока */
+    position: sticky; /* "Липкое" позиционирование */
+    top: 0; /* Прилипает к верху */
+    z-index: 1050; /* Порядок наложения (выше других) */
+    /* border-bottom: 1px solid var(--border-color); */ /* Закомментированная нижняя граница */
+}
+.header-logo-title { display: flex; align-items: center; gap: 15px;} /* Контейнер лого и заголовка */
+.page-logo-link { text-decoration: none; } /* Убрать подчеркивание у ссылки логотипа */
+.page-logo { font-size: 1.8em; font-weight: 700; color: var(--primary-color); } /* Стили логотипа */
+.page-logo span { color: var(--secondary-color); } /* Цвет для части логотипа */
+.page-title { font-size: 1.5em; font-weight: 600; color: var(--primary-color); margin: 0;} /* Заголовок страницы */
+
+.header-user-controls { display: flex; align-items: center; } /* Контейнер элементов управления пользователя */
+.header-user-controls .username { font-weight: 500; font-size: 0.95em; margin-right: 18px; color: var(--dark-text); } /* Имя пользователя */
+.button-logout { /* Кнопка выхода */
+    background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color);
+    padding: 8px 15px; border-radius: var(--border-radius-sm); cursor: pointer;
+    font-weight: 600; font-size: 0.9em; transition: all 0.2s ease;
+}
+.button-logout:hover { background-color: var(--accent-color); color: var(--white-color); transform: translateY(-1px); } /* Кнопка выхода при наведении */
+
+/* Обертка для основного контента страницы расписания */
+.schedule-page-wrapper {
+    width: 100%; /* Ширина 100% */
+    max-width: 96%; /* Максимальная ширина (шире для расписания) */
+    margin: 0 auto; /* Центрирование */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+/* Панель фильтров */
+.filter-navigation-bar {
+    background-color: var(--filter-bar-bg); /* Цвет фона */
+    padding: 18px 25px; /* Внутренние отступы */
+    border-radius: var(--border-radius-md); /* Скругление углов */
+    box-shadow: var(--shadow-md); /* Тень */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+    display: flex; /* Flex-контейнер */
+    flex-wrap: wrap; /* Перенос элементов на новую строку */
+    gap: 15px; /* Расстояние между элементами */
+    align-items: center; /* Выравнивание по центру */
+    border: 1px solid var(--border-color); /* Граница */
+}
+.filters-form { /* Форма фильтров */
+    display: flex; /* Flex-контейнер */
+    flex-wrap: wrap; /* Перенос элементов */
+    gap: 12px; /* Расстояние между элементами */
+    align-items: center; /* Выравнивание по центру */
+}
+.filters-form select, .filters-form .filter-button, .filters-form .reset-button { /* Элементы формы */
+    padding: 9px 14px; /* Внутренние отступы */
+    border: 1px solid var(--input-border-color); /* Граница */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    font-size: 0.92em; /* Размер шрифта */
+    font-family: var(--font-primary); /* Шрифт */
+    background-color: var(--white-color); /* Цвет фона */
+    height: 40px; /* Высота */
+    box-sizing: border-box; /* Расчет размеров блока */
+    box-shadow: var(--shadow-xs); /* Тень */
+}
+.filters-form select:focus { /* Выпадающий список в фокусе */
+    border-color: var(--input-focus-border-color); /* Цвет границы */
+    box-shadow: var(--input-focus-shadow); /* Тень */
+    outline: none; /* Убрать стандартный контур */
+}
+.filters-form .filter-button { /* Кнопка "Применить фильтр" */
+    background-color: var(--secondary-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+    border-color: var(--secondary-color); /* Цвет границы */
+    cursor: pointer; /* Курсор-указатель */
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Плавные переходы */
+}
+.filters-form .filter-button:hover { background-color: #3c56a0; transform: translateY(-1px); } /* Кнопка фильтра при наведении */
+.filters-form .reset-button { /* Кнопка "Сбросить фильтр" */
+    background-color: var(--medium-text); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+    border-color: var(--medium-text); /* Цвет границы */
+    text-decoration: none; /* Убрать подчеркивание */
+    cursor: pointer; /* Курсор-указатель */
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Плавные переходы */
+}
+.filters-form .reset-button:hover { background-color: var(--dark-text); transform: translateY(-1px); } /* Кнопка сброса при наведении */
+
+.semester-dates-info { /* Информация о датах семестра */
+    font-size: 0.9em; /* Размер шрифта */
+    color: var(--medium-text); /* Цвет текста */
+    margin-left: auto; /* Прижать вправо */
+    text-align: right; /* Выравнивание текста по правому краю */
+    padding-left: 20px; /* Внутренний отступ слева */
+}
+.semester-dates-info span { display: block; margin-bottom: 3px; } /* Строка информации */
+.semester-dates-info strong { color: var(--dark-text); } /* Выделенный текст */
+
+
+/* Навигация по неделям */
+.schedule-week-navigation {
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+    padding: 12px 20px; /* Внутренние отступы */
+    background-color: var(--week-nav-bg); /* Цвет фона */
+    border-radius: var(--border-radius-md); /* Скругление углов */
+    box-shadow: var(--shadow-md); /* Тень */
+    border: 1px solid var(--border-color); /* Граница */
+}
+.week-nav-button { /* Кнопка навигации по неделям */
+    background-color: var(--secondary-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+    padding: 10px 18px; /* Внутренние отступы */
+    text-decoration: none; /* Убрать подчеркивание */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    font-weight: 500; /* Насыщенность шрифта */
+    transition: background-color 0.2s ease, transform 0.15s ease; /* Плавные переходы */
+    display: inline-flex; /* Встроенный flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    gap: 8px; /* Расстояние между иконкой и текстом */
+}
+.week-nav-button:hover { background-color: #3c56a0; transform: translateY(-2px) scale(1.03); } /* Кнопка навигации при наведении */
+.week-nav-button.disabled { /* Неактивная кнопка навигации */
+    background-color: #c0c8d2; color: #6c757d;
+    pointer-events: none; opacity: 0.6;
+}
+.current-week-display { /* Отображение текущей недели */
+    font-size: 1.2em; /* Размер шрифта */
+    font-weight: 700; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+}
+
+/* Сообщения (успех, ошибка) */
+.message { padding: 12px 18px; margin-bottom: 20px; border-radius: var(--border-radius-sm); font-weight: 500; border-left-width: 4px; border-left-style: solid; display: flex; align-items: center; box-shadow: var(--shadow-xs); }
+.success-message { background-color: #e6f7f0; color: #107c41; border-left-color: var(--success-color); } /* Сообщение об успехе */
+.error-message { background-color: #fdecea; color: #a5282a; border-left-color: var(--danger-color); } /* Сообщение об ошибке */
+.message .icon { font-size: 1.2em; } /* Иконка в сообщении */
+
+.view-title-header { /* Заголовок отображения (например, "Расписание группы X") */
+    text-align: center; /* Выравнивание по центру */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+    font-size: 1.7em; /* Размер шрифта */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    padding: 10px; /* Внутренние отступы */
+    /* background-color: var(--white-color); */ /* Закомментированный фон */
+    /* border-radius: var(--border-radius-sm); */ /* Закомментированное скругление */
+    /* box-shadow: var(--shadow-xs); */ /* Закомментированная тень */
+}
+
+/* Обертка и таблица расписания */
+.schedule-grid-wrapper {
+    overflow-x: auto; /* Горизонтальная прокрутка при необходимости */
+    background-color: var(--card-bg); /* Цвет фона */
+    border-radius: var(--border-radius-lg); /* Скругление углов */
+    box-shadow: var(--shadow-lg); /* Тень */
+    padding: 20px; /* Внутренние отступы */
+    border: 1px solid var(--border-color); /* Граница */
+}
+.schedule-table { /* Таблица расписания */
+    width: 100%; /* Ширина 100% */
+    min-width: 1100px; /* Минимальная ширина */
+    border-collapse: separate; /* Раздельные границы для border-spacing */
+    border-spacing: 0; /* Расстояние между ячейками */
+    table-layout: fixed; /* Фиксированная раскладка таблицы */
+}
+
+.schedule-table th, /* Заголовки таблицы */
+.schedule-table td { /* Ячейки таблицы */
+    border: 1px solid var(--table-border-color); /* Граница */
+    padding: 12px; /* Внутренние отступы */
+    text-align: center; /* Выравнивание текста по центру */
+    vertical-align: top; /* Вертикальное выравнивание по верху */
+    height: auto; /* Автоматическая высота */
+    min-height: 90px; /* Минимальная высота ячейки */
+}
+.schedule-table td { background-color: var(--white-color); } /* Фон ячеек данных */
+
+
+.schedule-table th { /* Специфичные стили для заголовков таблицы */
+    background-color: #f0f3f7; /* Цвет фона */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    position: sticky; /* "Липкое" позиционирование */
+    top: 0; /* Прилипает к верху (относительно родителя с overflow) */
+    z-index: 10; /* Порядок наложения */
+    border-bottom: 2px solid var(--secondary-color); /* Нижняя акцентная граница */
+}
+.time-column-header { /* Заголовок колонки времени */
+    width: 130px; /* Ширина */
+    left: 0; /* Прилипает к левому краю */
+    z-index: 20; /* Порядок наложения (выше других заголовков) */
+    border-right: 2px solid var(--secondary-color); /* Правая акцентная граница */
+}
+.day-column-header { /* Заголовок колонки дня недели */
+    font-size: 1em; /* Размер шрифта */
+}
+.day-column-header .date-in-header { /* Дата в заголовке дня */
+    font-size: 0.9em; /* Размер шрифта */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: var(--medium-text); /* Цвет текста */
+    display: block; /* Блочный элемент */
+    margin-top: 3px; /* Внешний отступ сверху */
+}
+
+
+.time-slot-cell { /* Ячейка с временным слотом */
+    font-weight: 600; /* Насыщенность шрифта */
+    font-size: 0.95em; /* Размер шрифта */
+    background-color: #f0f3f7; /* Цвет фона (как у заголовков) */
+    position: sticky; /* "Липкое" позиционирование */
+    left: 0; /* Прилипает к левому краю */
+    z-index: 5; /* Порядок наложения */
+    border-right: 2px solid var(--secondary-color); /* Правая акцентная граница */
+}
+.time-slot-cell strong { display: block; margin-bottom: 4px; color: var(--primary-color); } /* Номер пары */
+.lesson-time-display { font-size: 0.9em; color: var(--medium-text); } /* Время занятия */
+
+.schedule-data-cell { /* Ячейка с данными о занятии */
+    text-align: left; /* Выравнивание текста по левому краю */
+    font-size: 0.9em; /* Размер шрифта */
+    background-color: var(--white-color); /* Явный фон */
+}
+.schedule-data-cell .lessons-in-slot { /* Контейнер для нескольких занятий в одной ячейке */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    gap: 10px; /* Расстояние между занятиями */
+}
+.schedule-entry-item { /* Карточка отдельного занятия */
+    background-color: #c6c6c6; /* Цвет фона */
+    padding: 10px 12px; /* Внутренние отступы */
+    border-radius: var(--border-radius-sm); /* Скругление углов */
+    border: 1px solid #eef2f7; /* Граница */
+    box-shadow: var(--shadow-xs); /* Тень */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Плавные переходы */
+    line-height: 1.5; /* Межстрочный интервал */
+}
+.schedule-entry-item:hover { /* Карточка занятия при наведении */
+    /* transform: scale(1.02); */ /* Закомментированное увеличение */
+    box-shadow: var(--shadow-sm); /* Увеличенная тень */
+    border-color: var(--secondary-color); /* Акцентная граница */
+}
+
+.schedule-entry-item strong { /* Название предмета */
+    display: block; /* Блочный элемент */
+    font-weight: 600; /* Насыщенность шрифта */
+    color: var(--secondary-color); /* Цвет текста */
+    margin-bottom: 4px; /* Внешний отступ снизу */
+    font-size: 1.05em; /* Размер шрифта */
+}
+.schedule-entry-item span { /* Дополнительная информация о занятии */
+    display: block; /* Блочный элемент */
+    color: var(--medium-text); /* Цвет текста */
+    font-size: 0.9em; /* Размер шрифта */
+    margin-bottom: 3px; /* Внешний отступ снизу */
+}
+.schedule-entry-item span:last-child { margin-bottom: 0; } /* Убрать отступ у последнего элемента span */
+
+.empty-slot-placeholder { min-height: 50px; } /* Заполнитель для пустых ячеек */
+
+.empty-table-message { /* Сообщение для пустой таблицы */
+    text-align:center; /* Выравнивание по центру */
+    padding: 40px 20px !important; /* Внутренние отступы (важно для переопределения) */
+    color: var(--medium-text); /* Цвет текста */
+    font-style: italic; /* Курсивный шрифт */
+    font-size: 1.1em; /* Размер шрифта */
+    background-color: var(--white-color); /* Цвет фона */
+}

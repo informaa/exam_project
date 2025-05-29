@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Управление пользователями</title>
+  <link rel="stylesheet" th:href="@{/css/admin-users-style.css}">
+</head>
+<body>
+
+<header class="admin-page-header">
+  <div class="header-logo-title">
+    <a th:href="@{/admin}" class="page-logo-link"><span class="page-logo">Admin<span>Panel</span></span></a>
+  </div>
+  <div class="header-user-controls" sec:authorize="isAuthenticated()">
+    <span class="username" sec:authentication="principal.username">User</span>
+    <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 15px;">
+      <button type="submit" class="button-logout">Выйти</button>
+    </form>
+  </div>
+</header>
+
+<main class="admin-content-wrapper">
+  <div class="content-card">
+    <div class="users-header">
+      <h1>Управление пользователями</h1>
+      <a th:href="@{/admin/users/new}" class="button-primary add-user-button">
+        <span class="icon"></span> Создать пользователя
+      </a>
+    </div>
+
+    <div th:if="${successMessage}" class="message success-message">
+      <p th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" class="message error-message">
+      <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div class="users-table-wrapper">
+      <table class="users-table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Логин</th>
+          <th>Полное имя</th>
+          <th>Роль</th>
+          <th>Группа</th>
+          <th class="actions-column-header">Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+          <td data-label="ID" th:text="${user.id}"></td>
+          <td data-label="Логин" class="user-login" th:text="${user.username}"></td>
+          <td data-label="Полное имя" th:text="${user.fullName}"></td>
+          <td data-label="Роль">
+                                <span th:switch="${user.role.name()}" class="user-role-badge"
+                                      th:classappend="${'role-' + #strings.toLowerCase(user.role.name())}">
+                                    <span th:case="'ADMIN'" th:text="${user.role.displayName}"></span>
+                                    <span th:case="'TEACHER'" th:text="${user.role.displayName}"></span>
+                                    <span th:case="'STUDENT'" th:text="${user.role.displayName}"></span>
+                                    <span th:case="*" th:text="${user.role.displayName}"></span>
+                                </span>
+          </td>
+          <td data-label="Группа" th:text="${user.studentGroup != null ? user.studentGroup.name : '—'}"></td>
+          <td class="actions-column">
+            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="action-button edit-button">
+              <span class="icon"></span> Редакт.
+            </a>
+            <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" style="display:inline;">
+              <button type="submit" class="action-button delete-button" onclick="return confirm('Вы уверены что хотите удалить этого пользователя?');">
+                <span class="icon"></span> Удалить
+              </button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(users)}">
+          <td colspan="6" class="empty-table-message">Пользователи не найдены.</td> </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-actions">
+      <a th:href="@{/admin}" class="button-secondary back-button">
+        <span class="icon"></span> Вернуться в панель
+      </a>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

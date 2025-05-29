@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${room.id == null ? 'Создание новой аудитории' : 'Редактирование аудитории'}"></title>
+  <link rel="stylesheet" th:href="@{/css/admin-rooms-style.css}">
+</head>
+<body>
+
+<header class="admin-page-header">
+  <div class="header-logo-title">
+    <a th:href="@{/admin}" class="page-logo-link"><span class="page-logo">Admin<span>Panel</span></span></a>
+  </div>
+  <div class="header-user-controls" sec:authorize="isAuthenticated()">
+    <span class="username" sec:authentication="principal.username">User</span>
+    <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 15px;">
+      <button type="submit" class="button-logout">Выйти</button>
+    </form>
+  </div>
+</header>
+
+<main class="admin-content-wrapper">
+  <div class="content-card">
+    <div class="page-section-header">
+      <h1 th:text="${room.id == null ? 'Создать новую аудиторию' : 'Редактировать аудиторию'}"></h1>
+    </div>
+
+    <form th:action="@{/admin/rooms/save}" th:object="${room}" method="post">
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="form-group">
+        <label for="roomNumber">Номер аудитории:</label>
+        <input type="text" id="roomNumber" th:field="*{roomNumber}" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label for="capacity">Вместимость (опционально):</label>
+        <input type="number" id="capacity" th:field="*{capacity}" class="form-control" min="0" />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="button-primary">
+          <span class="icon"></span> Сохранить
+        </button>
+        <a th:href="@{/admin/rooms}" class="button-secondary">
+          <span class="icon"></span> Отмена
+        </a>
+      </div>
+    </form>
+  </div>
+</main>
+
+</body>
+</html>

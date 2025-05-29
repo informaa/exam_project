@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Корневые переменные для глобальных стилей */
+:root {
+    --primary-color: #2c3e50; /* Основной цвет (темно-сине-серый) */
+    --secondary-color: #3498db; /* Вторичный цвет (яркий синий) */
+    --accent-color: #e67e22; /* Акцентный цвет (оранжевый) */
+    --light-bg: #f4f7f9; /* Светлый фон */
+    --white-color: #ffffff; /* Белый цвет */
+    --dark-text: #34495e; /* Темный текст */
+    --light-text-desc: #5a6a78; /* Светлый текст для описаний */
+    --border-color: #e1e5e8; /* Цвет границы */
+    --success-bg: #d1f7e8; /* Фон для сообщений об успехе */
+    --success-text: #0d6a69; /* Текст для сообщений об успехе */
+    --success-border: #a3e9d1; /* Граница для сообщений об успехе */
+    --error-bg: #fde2e2; /* Фон для сообщений об ошибке */
+    --error-text: #8c2f2f; /* Текст для сообщений об ошибке */
+    --error-border: #f7c1c1; /* Граница для сообщений об ошибке */
+    --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.07); /* Легкая тень */
+    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.1); /* Средняя тень */
+    --border-radius: 10px; /* Радиус скругления границ */
+}
+
+/* Базовые стили для body */
+body {
+    font-family: 'Inter', sans-serif; /* Шрифт */
+    margin: 0; /* Убрать внешние отступы */
+    background-color: var(--light-bg); /* Цвет фона */
+    color: var(--dark-text); /* Цвет текста */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    align-items: center; /* Выравнивание по центру */
+    padding: 20px; /* Внутренние отступы */
+    min-height: 100vh; /* Минимальная высота */
+    font-size: 15px; /* Размер шрифта */
+    line-height: 1.6; /* Межстрочный интервал */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+/* Верхний хедер страницы */
+.admin-page-header {
+    width: 100%; /* Ширина 100% */
+    max-width: 1200px; /* Максимальная ширина */
+    padding: 18px 30px; /* Внутренние отступы */
+    background-color: var(--white-color); /* Цвет фона */
+    box-shadow: var(--shadow-light); /* Тень */
+    border-radius: var(--border-radius); /* Скругление углов */
+    display: flex; /* Flex-контейнер */
+    justify-content: space-between; /* Распределение элементов по краям */
+    align-items: center; /* Выравнивание по центру */
+    margin-bottom: 35px; /* Внешний отступ снизу */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+.header-logo-title { /* Контейнер для логотипа и заголовка в хедере */
+    display: flex; /* Flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+}
+
+.page-logo-link { /* Ссылка логотипа */
+    text-decoration: none; /* Убрать подчеркивание */
+}
+
+.page-logo { /* Стили логотипа */
+    font-size: 1.9em; /* Размер шрифта */
+    font-weight: 700; /* Насыщенность шрифта */
+    color: var(--primary-color); /* Цвет текста */
+    margin-right: 20px; /* Внешний отступ справа */
+}
+.page-logo span { /* Часть логотипа (например, для выделения цветом) */
+    color: var(--secondary-color); /* Цвет текста */
+}
+
+/* Закомментированный стиль для заголовка h1 в хедере, если он нужен */
+/*
+.admin-page-header h1 {
+    font-size: 1.7em;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+*/
+
+.header-user-controls { /* Контейнер для элементов управления пользователя в хедере */
+    display: flex; /* Flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+}
+.header-user-controls .username { /* Имя пользователя в хедере */
+    font-weight: 500; /* Насыщенность шрифта */
+    font-size: 0.95em; /* Размер шрифта */
+    margin-right: 18px; /* Внешний отступ справа */
+    color: var(--dark-text); /* Цвет текста */
+}
+.button-logout { /* Кнопка выхода */
+    background-color: var(--accent-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+    border: none; /* Убрать границу */
+    padding: 9px 16px; /* Внутренние отступы */
+    border-radius: var(--border-radius); /* Скругление углов */
+    cursor: pointer; /* Курсор-указатель */
+    font-weight: 500; /* Насыщенность шрифта */
+    font-size: 0.9em; /* Размер шрифта */
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Плавные переходы */
+}
+.button-logout:hover { /* Кнопка выхода при наведении */
+    background-color: #d35400; /* Измененный цвет фона (темнее оранжевый) */
+    transform: translateY(-1px); /* Сдвиг вверх */
+}
+
+
+/* Основной контент страницы */
+.admin-main-content {
+    width: 100%; /* Ширина 100% */
+    max-width: 1200px; /* Максимальная ширина */
+    padding: 0 15px; /* Внутренние отступы по бокам */
+    box-sizing: border-box; /* Расчет размеров блока */
+}
+
+/* Блоки сообщений (успех, ошибка) */
+.message {
+    padding: 15px 20px; /* Внутренние отступы */
+    margin-bottom: 25px; /* Внешний отступ снизу */
+    border-radius: var(--border-radius); /* Скругление углов */
+    font-weight: 500; /* Насыщенность шрифта */
+    border: 1px solid transparent; /* Прозрачная граница (переопределяется ниже) */
+    display: flex; /* Flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Легкая тень */
+}
+.success-message { /* Сообщение об успехе */
+    background-color: var(--success-bg); /* Цвет фона */
+    color: var(--success-text); /* Цвет текста */
+    border-color: var(--success-border); /* Цвет границы */
+}
+.error-message { /* Сообщение об ошибке */
+    background-color: var(--error-bg); /* Цвет фона */
+    color: var(--error-text); /* Цвет текста */
+    border-color: var(--error-border); /* Цвет границы */
+}
+
+/* Сетка для дашборда на главной странице */
+.dashboard-grid {
+    display: grid; /* Grid-контейнер */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Адаптивные колонки */
+    gap: 30px; /* Расстояние между элементами сетки */
+}
+
+.dashboard-item { /* Элемент дашборда */
+    background: var(--white-color); /* Цвет фона */
+    padding: 35px 30px; /* Внутренние отступы */
+    border-radius: var(--border-radius); /* Скругление углов */
+    box-shadow: var(--shadow-light); /* Тень */
+    text-decoration: none; /* Убрать подчеркивание у ссылки */
+    color: var(--dark-text); /* Цвет текста */
+    display: flex; /* Flex-контейнер */
+    flex-direction: column; /* Направление flex-элементов - колонка */
+    align-items: center; /* Выравнивание по центру */
+    text-align: center; /* Выравнивание текста по центру */
+    border: 1px solid var(--border-color); /* Тонкая граница */
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), /* Плавные переходы для трансформации */
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), /* Плавные переходы для тени */
+    border-color 0.25s ease; /* Плавные переходы для цвета границы */
+}
+
+.dashboard-item:hover { /* Элемент дашборда при наведении */
+    transform: translateY(-8px); /* Сдвиг вверх */
+    box-shadow: var(--shadow-medium); /* Увеличенная тень */
+    border-color: var(--secondary-color); /* Изменение цвета границы */
+}
+
+.dashboard-item-icon-wrapper { /* Обертка для иконки элемента дашборда */
+    width: 75px; /* Ширина */
+    height: 75px; /* Высота */
+    border-radius: 50%; /* Круглая форма */
+    display: flex; /* Flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    justify-content: center; /* Выравнивание по центру */
+    margin-bottom: 22px; /* Внешний отступ снизу */
+    transition: background-color 0.25s ease, transform 0.2s ease; /* Плавные переходы */
+}
+.dashboard-item:hover .dashboard-item-icon-wrapper { /* Обертка иконки при наведении на элемент дашборда */
+    transform: scale(1.1); /* Увеличение */
+}
+
+.dashboard-item-icon { /* Иконка элемента дашборда */
+    font-size: 2.6em; /* Размер шрифта */
+    line-height: 1; /* Межстрочный интервал */
+}
+
+.dashboard-item h3 { /* Заголовок элемента дашборда */
+    font-size: 1.3em; /* Размер шрифта */
+    font-weight: 600; /* Насыщенность шрифта */
+    margin-top: 0; /* Убрать верхний отступ */
+    margin-bottom: 10px; /* Внешний отступ снизу */
+    color: var(--primary-color); /* Цвет текста */
+}
+
+.dashboard-item p { /* Описание элемента дашборда */
+    font-size: 0.9em; /* Размер шрифта */
+    color: var(--light-text-desc); /* Цвет текста */
+    line-height: 1.5; /* Межстрочный интервал */
+    margin-bottom: 0; /* Убрать нижний отступ */
+    flex-grow: 1; /* Растягивается, чтобы занять доступное пространство */
+}
+
+/* Цветовые схемы для различных элементов дашборда */
+.users-item .dashboard-item-icon-wrapper { background-color: rgba(52, 152, 219, 0.12); } /* Фон иконки "Пользователи" */
+.users-item .dashboard-item-icon { color: #3498db; } /* Цвет иконки "Пользователи" */
+.users-item:hover { border-color: #3498db; } /* Цвет границы при наведении на "Пользователи" */
+
+.groups-item .dashboard-item-icon-wrapper { background-color: rgba(46, 204, 113, 0.12); } /* Фон иконки "Группы" */
+.groups-item .dashboard-item-icon { color: #2ecc71; } /* Цвет иконки "Группы" */
+.groups-item:hover { border-color: #2ecc71; } /* Цвет границы при наведении на "Группы" */
+
+.rooms-item .dashboard-item-icon-wrapper { background-color: rgba(241, 196, 15, 0.15); } /* Фон иконки "Аудитории" */
+.rooms-item .dashboard-item-icon { color: #f1c40f; } /* Цвет иконки "Аудитории" */
+.rooms-item:hover { border-color: #f1c40f; } /* Цвет границы при наведении на "Аудитории" */
+
+.subjects-item .dashboard-item-icon-wrapper { background-color: rgba(155, 89, 182, 0.12); } /* Фон иконки "Предметы" */
+.subjects-item .dashboard-item-icon { color: #9b59b6; } /* Цвет иконки "Предметы" */
+.subjects-item:hover { border-color: #9b59b6; } /* Цвет границы при наведении на "Предметы" */
+
+.generate-item .dashboard-item-icon-wrapper { background-color: rgba(230, 126, 34, 0.12); } /* Фон иконки "Генерация" */
+.generate-item .dashboard-item-icon { color: var(--accent-color); } /* Цвет иконки "Генерация" */
+.generate-item:hover { border-color: var(--accent-color); } /* Цвет границы при наведении на "Генерация" */
+
+
+/* Базовые стили для таблиц и форм (могут быть переопределены или дополнены на конкретных страницах) */
+.data-table-wrapper { overflow-x: auto; } /* Обертка для таблицы с горизонтальной прокруткой */
+.data-table { width: 100%; border-collapse: collapse; margin-top: 20px; } /* Стили таблицы */
+.data-table th, .data-table td { border: 1px solid var(--border-color); padding: 12px 15px; text-align: left; font-size: 0.9em; } /* Ячейки и заголовки таблицы */
+.data-table th { background-color: #f8f9fa; color: var(--dark-text); font-weight: 600; } /* Заголовки таблицы */
+.data-table tbody tr:nth-child(even) { background-color: #fdfdfe; } /* Чередование цвета строк таблицы */
+.data-table tbody tr:hover { background-color: #f1f5f9; } /* Строка таблицы при наведении */
+
+.form-group { margin-bottom: 20px; } /* Группа элементов формы */
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark-text); } /* Метка поля ввода */
+.form-group input[type="text"], /* Поля ввода текста */
+.form-group input[type="password"], /* Поля ввода пароля */
+.form-group input[type="number"], /* Поля ввода числа */
+.form-group input[type="email"], /* Поля ввода email */
+.form-group select, /* Выпадающие списки */
+.form-group textarea { /* Текстовые области */
+    width: 100%; /* Ширина 100% */
+    padding: 12px 15px; /* Внутренние отступы */
+    border: 1px solid var(--border-color); /* Граница */
+    border-radius: var(--border-radius); /* Скругление углов */
+    box-sizing: border-box; /* Расчет размеров блока */
+    font-size: 0.95em; /* Размер шрифта */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Плавные переходы */
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { /* Элементы формы при фокусе */
+    border-color: var(--secondary-color); /* Цвет границы */
+    box-shadow: 0 0 0 3px rgba(var(--secondary-color), 0.15); /* Тень */
+    outline: none; /* Убрать стандартный контур */
+}
+button.primary, input[type="submit"].primary { /* Основные кнопки (отправка формы) */
+    background-color: var(--secondary-color); /* Цвет фона */
+    color: var(--white-color); /* Цвет текста */
+    padding: 12px 25px; /* Внутренние отступы */
+    border: none; /* Убрать границу */
+    border-radius: var(--border-radius); /* Скругление углов */
+    cursor: pointer; /* Курсор-указатель */
+    font-size: 1em; /* Размер шрифта */
+    font-weight: 500; /* Насыщенность шрифта */
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Плавные переходы */
+}
+button.primary:hover, input[type="submit"].primary:hover { /* Основные кнопки при наведении */
+    background-color: #2980b9; /* Измененный цвет фона (темнее синий) */
+    transform: translateY(-1px); /* Сдвиг вверх */
+}
+
+/* Кнопки действий в таблицах (редактировать, удалить) */
+.action-button {
+    padding: 7px 12px; /* Внутренние отступы */
+    font-size: 0.88em; /* Размер шрифта */
+    border-radius: var(--border-radius); /* Скругление углов */
+    text-decoration: none; /* Убрать подчеркивание */
+    margin-right: 6px; /* Внешний отступ справа */
+    border: none; /* Убрать границу */
+    cursor: pointer; /* Курсор-указатель */
+    transition: opacity 0.2s ease, transform 0.1s ease; /* Плавные переходы */
+    display: inline-flex; /* Встроенный flex-контейнер */
+    align-items: center; /* Выравнивание по центру */
+    font-weight: 500; /* Насыщенность шрифта */
+    color: white; /* Цвет текста */
+}
+.action-button:hover { opacity: 0.9; transform: translateY(-1px); } /* Кнопка действия при наведении */
+.edit-button { background-color: #27ae60; } /* Кнопка редактирования */
+.delete-button { background-color: #e74c3c; } /* Кнопка удаления */

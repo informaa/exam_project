@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Админ-панель</title>
+  <link rel="stylesheet" th:href="@{/css/admin-modern-style.css}">
+</head>
+<body>
+
+<header class="admin-page-header">
+  <div class="header-logo-title">
+    <a th:href="@{/admin}" class="page-logo-link"><span class="page-logo">Admin<span>Panel</span></span></a>
+  </div>
+  <div class="header-user-controls" sec:authorize="isAuthenticated()">
+    <span class="username" sec:authentication="principal.username">User</span>
+    <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 15px;">
+      <button type="submit" class="button-logout">Выйти</button>
+    </form>
+  </div>
+</header>
+
+<main class="admin-main-content">
+  <div th:if="${successMessage}" class="message success-message">
+    <p th:text="${successMessage}"></p>
+  </div>
+  <div th:if="${errorMessage}" class="message error-message">
+    <p th:text="${errorMessage}"></p>
+  </div>
+
+  <div class="dashboard-grid">
+    <a th:href="@{/admin/users}" class="dashboard-item users-item">
+      <div class="dashboard-item-icon-wrapper">
+        <span class="dashboard-item-icon">👥</span>
+      </div>
+      <h3>Управление пользователями</h3>
+    </a>
+    <a th:href="@{/admin/groups}" class="dashboard-item groups-item">
+      <div class="dashboard-item-icon-wrapper">
+        <span class="dashboard-item-icon">🏛️</span>
+      </div>
+      <h3>Управление группами</h3>
+    </a>
+    <a th:href="@{/admin/rooms}" class="dashboard-item rooms-item">
+      <div class="dashboard-item-icon-wrapper">
+        <span class="dashboard-item-icon">🚪</span>
+      </div>
+      <h3>Управление аудиториями</h3>
+    </a>
+    <a th:href="@{/admin/subjects}" class="dashboard-item subjects-item">
+      <div class="dashboard-item-icon-wrapper">
+        <span class="dashboard-item-icon">📚</span>
+      </div>
+      <h3>Управление предметами</h3>
+    </a>
+    <a th:href="@{/schedule/generate-form}" class="dashboard-item generate-item"
+       onclick="return confirm('Это удалит существующее расписание и сгенерирует новое. Продолжить?')">
+      <div class="dashboard-item-icon-wrapper">
+        <span class="dashboard-item-icon">⚙️</span>
+      </div>
+      <h3>Сгенерировать расписание</h3>
+    </a>
+  </div>
+</main>
+
+</body>
+</html>
